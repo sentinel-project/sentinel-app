@@ -10,7 +10,7 @@ var margin = {top: 10, left: 10, bottom: 10, right: 10}
 , mapRatio = 1008/651
 , height = width / mapRatio;
 
-var colorscheme = "Blues";
+var colorscheme = "BuPu";
 
 var dataMap, centered;
 
