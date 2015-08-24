@@ -93,8 +93,8 @@ var charts = {
 // Load data from CSVs
 // =======================
 queue()
-    .defer(d3.csv, "crude_evaluation_targets.csv", cleanEvalCSV)
-    .defer(d3.csv, "tb_publications.csv", cleanPubCSV)
+    .defer(d3.csv, "/static/crude_evaluation_targets.csv", cleanEvalCSV)
+    .defer(d3.csv, "/static/tb_publications.csv", cleanPubCSV)
     .await(function (error, targets, pubs) {
         var data = {};
         targets.forEach(function (d) {

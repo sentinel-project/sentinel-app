@@ -27,3 +27,7 @@ class Country(models.Model):
         "Publication documenting adult XDR TB case")
     documented_child_xdr = models.BooleanField(
         "Publication documenting child XDR TB case")
+
+    class Meta:
+        ordering = ('code',)
+        verbose_name_plural = 'countries'
