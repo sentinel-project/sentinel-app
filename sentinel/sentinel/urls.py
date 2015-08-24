@@ -13,11 +13,12 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from countries.views import IndexView
+from countries.views import IndexView, countries_csv
 from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', IndexView.as_view())
+    url(r'^$', IndexView.as_view()),
+    url(r'^countries.csv$', countries_csv),
 ]

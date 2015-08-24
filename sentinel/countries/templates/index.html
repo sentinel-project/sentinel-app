@@ -52,19 +52,19 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="targets">
                     <ul class="list-unstyled">
-                        <li><a id="link-estimated" href="#map/estimated">Estimated
+                        <li><a id="link-mdr_estimated_cases" href="#map/mdr_estimated_cases">Estimated
                             MDR-TB Cases</a></li>
-                        <li><a id="link-eval_0" href="#map/eval_0">0-4 Year
+                        <li><a id="link-mdr_eval_0" href="#map/mdr_eval_0">0-4 Year
                             Olds: Needing Evaluation</a></li>
-                        <li><a id="link-eval_5" href="#map/eval_5">5-14 Year
+                        <li><a id="link-mdr_eval_5" href="#map/mdr_eval_5">5-14 Year
                             Olds: Needing Evaluation</a></li>
-                        <li><a id="link-treat_0" href="#map/treat_0">0-4 Year
+                        <li><a id="link-mdr_treat_0" href="#map/mdr_treat_0">0-4 Year
                             Olds: Needing Treatment</a></li>
-                        <li><a id="link-treat_5" href="#map/treat_5">5-14 Year
+                        <li><a id="link-mdr_treat_5" href="#map/mdr_treat_5">5-14 Year
                             Olds: Needing Treatment</a></li>
-                        <li><a id="link-therapy_0" href="#map/therapy_0">0-4
+                        <li><a id="link-mdr_therapy_0" href="#map/mdr_therapy_0">0-4
                             Year Olds: Needing Preventative Therapy</a></li>
-                        <li><a id="link-therapy_5" href="#map/therapy_5">5-14
+                        <li><a id="link-mdr_therapy_5" href="#map/mdr_therapy_5">5-14
                             Year Olds: Needing Preventative Therapy</a></li>
                     </ul>
                 </div>
@@ -97,7 +97,7 @@
     </div>
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="iframeResizer.contentWindow.min.js"></script>
+    <script src="{% static "iframeResizer.contentWindow.min.js" %}"></script>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="{% static "bundle.js" %}"></script>

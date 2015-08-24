@@ -2,6 +2,10 @@ from django.db import models
 
 
 class Country(models.Model):
+    class Meta:
+        ordering = ('code',)
+        verbose_name_plural = 'countries'
+
     code = models.CharField("Country code", max_length=2, unique=True)
     name = models.CharField("Country name", max_length=255, unique=True)
     mdr_estimated_cases = models.PositiveIntegerField("Estimated MDR-TB cases")
@@ -28,6 +32,5 @@ class Country(models.Model):
     documented_child_xdr = models.BooleanField(
         "Publication documenting child XDR TB case")
 
-    class Meta:
-        ordering = ('code',)
-        verbose_name_plural = 'countries'
+    def __str__(self):
+        return self.name
