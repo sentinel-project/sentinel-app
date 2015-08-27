@@ -159,8 +159,7 @@
 	        "mdr_treat_0",
 	        "mdr_treat_5",
 	        "mdr_therapy_0",
-	        "mdr_therapy_5"];
-	    var booleanFields = [
+	        "mdr_therapy_5",
 	        "reported_mdr",
 	        "reported_xdr",
 	        "documented_adult_mdr",
@@ -172,13 +171,6 @@
 	    d["name"] = data["name"];
 	    _.each(numFields, function (field) {
 	        d[field] = +data[field];
-	    });
-	    _.each(booleanFields, function (field) {
-	        if (data[field] === "True") {
-	            d[field] = 1;
-	        } else {
-	            d[field] = 0;
-	        }
 	    });
 
 	    d["reported"] = d["reported_mdr"] + 2 * d["reported_xdr"];

@@ -16,9 +16,13 @@ Including another URLconf
 from countries.views import IndexView, countries_csv
 from django.conf.urls import include, url
 from django.contrib import admin
+from adminplus.sites import AdminSitePlus
+
+admin.site = AdminSitePlus()
+admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', IndexView.as_view()),
-    url(r'^countries.csv$', countries_csv),
+    url(r'^countries.csv$', countries_csv, name="countries_csv"),
 ]

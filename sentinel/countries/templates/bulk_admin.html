@@ -1,0 +1,78 @@
+{% extends "adminplus/base.html" %}
+
+{% block content %}
+    <h1>Bulk edit data via spreadsheet</h1>
+    <p>
+        To edit the Sentinel Project data in bulk, you will need to download 
+        a spreadsheet from here, edit it, and then upload it again.
+    </p>
+    <p>
+        The spreadsheet column headers <strong>cannot</strong> be changed. If
+        they are, the spreadsheet will not be accepted. A data dictionary
+        to explain each header is listed below.
+    </p>
+
+    <p>
+        <a class="button" href="{% url 'countries_csv' %}">Download the spreadsheet (in CSV format)</a>
+    </p>
+
+    <h2>Upload spreadsheet</h2>
+
+    <p>
+    <form action="." method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+        <input type="file" name="csvfile"></input>
+        <button type="submit" class="button">Upload</button>
+    </form>
+    </p>
+
+    <hr />
+
+    <h2>Data Dictionary</h2>
+    <dl>
+        <dt>code</dt>
+        <dd>The <a href="https://en.wikipedia.org/wiki/ISO_3166-1">ISO 3166 alpha-2</a> country code for the country.</dd>
+
+        <dt>name</dt>
+        <dd>The name of the country as you want it displayed.</dd>
+
+        <dt>mdr_estimated_cases</dt>
+        <dd>Number of estimated cases of MDR-TB for the country.</dd>
+
+        <dt>mdr_eval_0</dt>
+        <dd>Number of 0-4 year-olds needing evaluation</dd>
+
+        <dt>mdr_eval_5</dt>
+        <dd>Number of 5-14 year-olds needing evaluation</dd>
+
+        <dt>mdr_treat_0</dt>
+        <dd>Number of 0-4 year-olds needing treatment</dd>
+
+        <dt>mdr_treat_5</dt>
+        <dd>Number of 5-14 year-olds needing treatment</dd>
+
+        <dt>mdr_therapy_0</dt>
+        <dd>Number of 0-4 year-olds needing preventative therapy</dd>
+
+        <dt>mdr_therapy_5</dt>
+        <dd>Number of 5-14 year-olds needing preventative therapy</dd>
+
+        <dt>reported_mdr</dt>
+        <dd>Has there been a reported case of MDR-TB? (0 = False, 1 = True)</dd>
+
+        <dt>reported_xdr</dt>
+        <dd>Has there been a reported case of XDR-TB? (0 = False, 1 = True)</dd>
+
+        <dt>documented_adult_mdr</dt>
+        <dd>Has there been a documented case of MDR-TB among adults? (0 = False, 1 = True)</dd>
+
+        <dt>documented_adult_xdr</dt>
+        <dd>Has there been a documented case of XDR-TB among adults? (0 = False, 1 = True)</dd>
+
+        <dt>documented_child_mdr</dt>
+        <dd>Has there been a documented case of MDR-TB among children? (0 = False, 1 = True)</dd>
+
+        <dt>documented_child_xdr</dt>
+        <dd>Has there been a documented case of XDR-TB among children? (0 = False, 1 = True)</dd>
+    </dl>
+{% endblock %}
