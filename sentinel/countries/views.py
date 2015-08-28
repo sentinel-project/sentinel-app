@@ -1,10 +1,26 @@
 from countries.models import Country
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 import csv
 from django.http import HttpResponse
 from django import forms
 from django.contrib import messages
+from io import TextIOWrapper
+
+
+csv_fields = ('code', 'name', 'mdr_estimated_cases', 'mdr_eval_0',
+              'mdr_eval_5', 'mdr_treat_0', 'mdr_treat_5',  'mdr_therapy_0',
+              'mdr_therapy_5', 'reported_mdr', 'documented_adult_mdr',
+              'documented_child_mdr', 'reported_xdr', 'documented_adult_xdr',
+              'documented_child_xdr',)
+
+integer_fields = ('mdr_estimated_cases', 'mdr_eval_0', 'mdr_eval_5',
+                  'mdr_treat_0', 'mdr_treat_5',  'mdr_therapy_0',
+                  'mdr_therapy_5')
+
+boolean_fields = ('reported_mdr', 'documented_adult_mdr',
+                  'documented_child_mdr', 'reported_xdr',
+                  'documented_adult_xdr', 'documented_child_xdr',)
 
 
 class IndexView(TemplateView):
@@ -12,18 +28,11 @@ class IndexView(TemplateView):
 
 
 def countries_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    # response = HttpResponse(content_type='text/plain')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="countries.csv"'
 
     countries = Country.objects.all()
-    fields = ('code', 'name', 'mdr_estimated_cases', 'mdr_eval_0',
-              'mdr_eval_5', 'mdr_treat_0', 'mdr_treat_5',  'mdr_therapy_0',
-              'mdr_therapy_5', 'reported_mdr', 'documented_adult_mdr',
-              'documented_child_mdr', 'reported_xdr', 'documented_adult_xdr',
-              'documented_child_xdr',)
-    writer = csv.DictWriter(response, fields, extrasaction='ignore')
+    writer = csv.DictWriter(response, csv_fields, extrasaction='ignore')
     writer.writeheader()
     for country in countries:
         def convert(val):
@@ -31,7 +40,7 @@ def countries_csv(request):
                 return int(val)
             else:
                 return val
-        row = {field: convert(getattr(country, field)) for field in fields}
+        row = {field: convert(getattr(country, field)) for field in csv_fields}
         writer.writerow(row)
 
     return response
@@ -42,15 +51,40 @@ class UploadFileForm(forms.Form):
 
 
 def import_csv(request, csvfile):
-    pass
+    def convert(attr, value):
+        if attr in integer_fields:
+            return value
+        elif attr in boolean_fields:
+            return (value == "1")
+        return value
+
+    csvtext = TextIOWrapper(csvfile.file, encoding='UTF-8')
+    reader = csv.DictReader(csvtext)
+    if reader.fieldnames != list(csv_fields):
+        return False
+    else:
+        for row in reader:
+            data = {attr: convert(attr, value) for attr, value in row.items()}
+            try:
+                country = Country.objects.get(code=row['code'])
+                for attr, value in data.items():
+                    setattr(country, attr, value)
+            except Country.DoesNotExist:
+                country = Country(**data)
+            country.save()
+        return True
 
 
 def bulk_upload(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            import_csv(request, request.FILES['csvfile'])
-            messages.info(request, "You uploaded a file.")
+            valid = import_csv(request, request.FILES['csvfile'])
+            if valid:
+                messages.info(request, "Your file was imported successfully.")
+                return redirect('/admin/')
+            else:
+                messages.error(request, "Your file was invalid.")
     else:
         form = UploadFileForm()
 

@@ -243,7 +243,7 @@
 	    tooltipFn = function () {
 	        var data = dataMap.get(this.id);
 	        if (data !== undefined) {
-	            return "<h4>" + data.country + "</h4>";
+	            return "<h4>" + data.name + "</h4>";
 	        }
 	    }
 
@@ -255,7 +255,7 @@
 	        infoFn = function () {
 	            var data = dataMap.get(this.id);
 	            if (data !== undefined) {
-	                return "<div><strong>" + data.country + "</strong></div><div>" + d3.format(",d")(data[mapId]) + "</div>";
+	                return "<div><strong>" + data.name + "</strong></div><div>" + d3.format(",d")(data[mapId]) + "</div>";
 	            }
 	        }
 	    } else {
@@ -267,7 +267,7 @@
 	        infoFn = function () {
 	            var data = dataMap.get(this.id);
 	            if (data !== undefined) {
-	                return "<div><strong>" + data.country + "</strong></div><div>" + mapDef.ordinals[data[mapId]] + "</div>";
+	                return "<div><strong>" + data.name + "</strong></div><div>" + mapDef.ordinals[data[mapId]] + "</div>";
 	            }
 	        }
 	    }
