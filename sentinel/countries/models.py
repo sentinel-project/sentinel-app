@@ -1,4 +1,31 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.contrib.postgres.fields import ArrayField
+
+import re
+
+
+def validate_chart_name(value):
+    if re.fullmatch(r'[a-z_]+', value) is None:
+        raise ValidationError('% is not a valid chart name' % value)
+
+
+class Chart(models.Model):
+    ORDINAL = 'ordinal'
+    LOG = 'log'
+    CONTINUOUS = 'continuous'
+    SCALES = (
+        (ORDINAL, 'Ordinal'),
+        (LOG, 'Logarithmic'),
+        (CONTINUOUS, 'Continuous')
+    )
+
+    name = models.CharField(unique=True, max_length=25,
+                            validators=[validate_chart_name])
+    title = models.CharField(max_length=255)
+    scale = models.CharField(max_length=20, choices=SCALES)
+    ordinals = ArrayField(models.CharField(max_length=100))
+    segments = models.PositiveIntegerField(null=True, blank=True)
 
 
 class Country(models.Model):
