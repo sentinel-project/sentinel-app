@@ -15,92 +15,15 @@ var colorscheme = "Blues";
 var dataMap, centered;
 
 // =======================
-// Chart defs
-// =======================
-
-var charts = {
-    "reported": {
-        "title": "Reported MDR-TB & XDR-TB Cases",
-        "ordinals": ["No Reported Cases", "Reported MDR-TB Case",
-            "Reported XDR-TB Case", "Reported MDR-TB & XDR-TB"]
-    },
-    "pub_mdr": {
-        "title": "Publication Documenting MDR-TB Cases",
-        "ordinals": ["No Publication",
-            "Publication with Adult MDR-TB",
-            "Publication with Child MDR-TB",
-            "Publication with Adult & Child MDR-TB"]
-    },
-    "pub_xdr": {
-        "title": "Publication Documenting XDR-TB Cases",
-        "ordinals": ["No Publication",
-            "Publication with Adult XDR-TB",
-            "Publication with Child XDR-TB",
-            "Publication with Adult & Child XDR-TB"]
-    },
-    "all_mdr": {
-        "title": "All Data on MDR-TB",
-        "ordinals": ["No Reported Cases",
-            "Reported Cases without Publication",
-            "Reported Cases with Publications for Adults",
-            "Reported Cases with Publications for Adults & Children"]
-    },
-    "all_xdr": {
-        "title": "All Data on XDR-TB",
-        "ordinals": ["No Reported Cases",
-            "Reported Cases without Publication",
-            "Reported Cases with Publications for Adults",
-            "Reported Cases with Publications for Adults & Children"]
-    },
-    "mdr_estimated_cases": {
-        "title": "Estimated MDR-TB Cases",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_eval_0": {
-        "title": "0-4 Year Olds: Needing Evaluation",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_eval_5": {
-        "title": "5-14 Year Olds: Needing Evaluation",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_treat_0": {
-        "title": "0-4 Year Olds: Needing Treatment",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_treat_5": {
-        "title": "5-14 Year Olds: Needing Treatment",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_therapy_0": {
-        "title": "0-4 Year Olds: Needing Preventative Therapy",
-        "scale": "log",
-        "segments": 5
-    },
-    "mdr_therapy_5": {
-        "title": "5-14 Year Olds: Needing Preventative Therapy",
-        "scale": "log",
-        "segments": 5
-    }
-}
-
-// =======================
 // Load data from CSVs
 // =======================
 queue()
     .defer(d3.csv, "/countries.csv", cleanCSV)
     .await(function (error, countries) {
-        console.log(countries);
         var data = {};
         countries.forEach(function (d) {
             data[d.id] = d.data;
         });
-        console.log(data);
         dataMap = d3.map(data);
         init();
     });
@@ -177,7 +100,12 @@ function resize() {
 // =================
 
 function generateLogLegend(segments) {
-    return ["0-9", "10-99", "100-999", "1,000-9,999", "10,000+"];
+    var labels = [];
+    for (var i = 0; i < segments - 1; i++) {
+        labels[i] = Math.pow(10, i).toLocaleString() + "-" + (Math.pow(10, i + 1) - 1).toLocaleString();
+    }
+    labels[i] = Math.pow(10, i).toLocaleString() + "+";
+    return labels;
 }
 
 function updateMap(mapId) {
@@ -205,7 +133,7 @@ function updateMap(mapId) {
         scale = d3.scale.log();
         segments = mapDef.segments;
         var colors = colorbrewer[colorscheme][segments];
-        legendData = _(colors).zip(generateLogLegend());
+        legendData = _(colors).zip(generateLogLegend(segments));
         infoFn = function () {
             var data = dataMap.get(this.id);
             if (data !== undefined) {

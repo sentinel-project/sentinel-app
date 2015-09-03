@@ -1,0 +1,139 @@
+[
+  {
+    "model": "countries.chart",
+    "pk": 1,
+    "fields": {
+      "name": "reported",
+      "title": "Reported MDR-TB & XDR-TB Cases",
+      "scale": "ordinal",
+      "ordinals": [
+        "No Reported Cases",
+        "Reported MDR-TB Case",
+        "Reported XDR-TB Case",
+        "Reported MDR-TB & XDR-TB"
+      ]
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 2,
+    "fields": {
+      "name": "pub_mdr",
+      "title": "Publication Documenting MDR-TB Cases",
+      "scale": "ordinal",
+      "ordinals": ["No Publication",
+            "Publication with Adult MDR-TB",
+            "Publication with Child MDR-TB",
+            "Publication with Adult & Child MDR-TB"]
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 3,
+    "fields": {
+      "name": "pub_xdr",
+      "title": "Publication Documenting XDR-TB Cases",
+      "scale": "ordinal",
+      "ordinals": ["No Publication",
+            "Publication with Adult XDR-TB",
+            "Publication with Child XDR-TB",
+            "Publication with Adult & Child XDR-TB"]
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 4,
+    "fields": {
+      "name": "all_mdr",
+      "title": "All Data on MDR-TB",
+      "scale": "ordinal",
+      "ordinals": ["No Reported Cases",
+            "Reported Cases without Publication",
+            "Reported Cases with Publications for Adults",
+            "Reported Cases with Publications for Adults & Children"]
+    }
+  },
+    {
+    "model": "countries.chart",
+    "pk": 5,
+    "fields": {
+      "name": "all_xdr",
+      "title": "All Data on XDR-TB",
+      "scale": "ordinal",
+      "ordinals": ["No Reported Cases",
+            "Reported Cases without Publication",
+            "Reported Cases with Publications for Adults",
+            "Reported Cases with Publications for Adults & Children"]
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 6,
+    "fields": {
+      "name": "mdr_estimated_cases",
+      "title": "Estimated MDR-TB Cases",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 7,
+    "fields": {
+      "name": "mdr_eval_0",
+      "title": "0-4 Year Olds: Needing Evaluation",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 8,
+    "fields": {
+      "name": "mdr_eval_5",
+      "title": "5-14 Year Olds: Needing Evaluation",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 9,
+    "fields": {
+      "name": "mdr_treat_0",
+      "title": "0-4 Year Olds: Needing Treatment",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 10,
+    "fields": {
+      "name": "mdr_treat_5",
+      "title": "5-14 Year Olds: Needing Treatment",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 11,
+    "fields": {
+      "name": "mdr_therapy_0",
+      "title": "0-4 Year Olds: Needing Preventative Therapy",
+      "scale": "log",
+      "segments": 5
+    }
+  },
+  {
+    "model": "countries.chart",
+    "pk": 12,
+    "fields": {
+      "name": "mdr_therapy_5",
+      "title": "5-14 Year Olds: Needing Preventative Therapy",
+      "scale": "log",
+      "segments": 5
+    }
+  }
+]

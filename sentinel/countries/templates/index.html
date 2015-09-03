@@ -74,6 +74,7 @@
                     </ul>
                 </div>
             </div>
+            <div class="well hidden" id="country-info"></div>
         </div>
         <div class="col-lg-8 col-sm-7">
             <h3 id="map-title"></h3>
@@ -82,7 +83,6 @@
                 <div id="legend" class="legend col-sm-6"></div>
                 <div id="country-dropdown" class="col-sm-5">
                     <select name="country" id="country-select">
-
                     </select>
                 </div>
                 <div id="world-map" class="map">
@@ -92,11 +92,12 @@
         </div>
     </div>
 
-    <div class="well hidden" id="country-info"
-         style="position: absolute; bottom: 0; left: 10px;">
-    </div>
+
 
     <!-- Latest compiled and minified JavaScript -->
+    <script>
+        window.charts = {{ charts_json|safe }};
+    </script>
     <script src="{% static "iframeResizer.contentWindow.min.js" %}"></script>
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>

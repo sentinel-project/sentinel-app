@@ -1,7 +1,8 @@
-from countries.models import Country
+from countries.models import Country, Chart
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 import csv
+import json
 from django.http import HttpResponse
 from django import forms
 from django.contrib import messages
@@ -23,8 +24,18 @@ boolean_fields = ('reported_mdr', 'documented_adult_mdr',
                   'documented_adult_xdr', 'documented_child_xdr',)
 
 
-class IndexView(TemplateView):
-    template_name = "index.html"
+def index(request):
+    charts = Chart.objects.all()
+    charts_dict = {}
+    for chart in charts:
+        charts_dict[chart.name] = {
+            "title": chart.title,
+            "scale": chart.scale,
+            "ordinals": chart.ordinals,
+            "segments": chart.segments,
+        }
+    charts_json = json.dumps(charts_dict)
+    return render(request, "index.html", {"charts_json": charts_json})
 
 
 def countries_csv(request):
