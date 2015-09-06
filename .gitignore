@@ -70,3 +70,4 @@ __pycache__/
 local_settings.py
 
 node_modules
+sentinel/static/*.map
