@@ -61,4 +61,5 @@ a.active, a.active:hover {
 
 #world-map {
     position: relative;
+    width: 100%;
 }

@@ -48,17 +48,17 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var d3 = __webpack_require__(/*! d3 */ 1);
-	var topojson = __webpack_require__(/*! topojson */ 2);
-	var Datamap = __webpack_require__(/*! ./datamaps.world */ 3);
+	var topojson = window.topojson = __webpack_require__(/*! topojson */ 2);
+	var Datamap = window.Datamap = __webpack_require__(/*! ./datamaps.world */ 3);
 	var queue = __webpack_require__(/*! queue-async */ 4);
 	var _ = __webpack_require__(/*! underscore */ 5);
 	var colorbrewer = __webpack_require__(/*! colorbrewer */ 6);
 	var Backbone = __webpack_require__(/*! backbone */ 8);
 	
 	var margin = {top: 10, left: 10, bottom: 10, right: 10}
-	    , width = parseInt(d3.select('#world-map').style('width'))
+	    , width = parseInt($('#world-map').width())
 	    , width = width - margin.left - margin.right
-	    , mapRatio = 1008 / 651
+	    , mapRatio = 3 / 2
 	    , height = width / mapRatio;
 	
 	var colorscheme = "Blues";
@@ -70,51 +70,19 @@
 	    })
 	});
 	
-	d3.select('#world-map')
-	    .style({
-	        "width": "100%",
-	        "height": height + "px"
-	    });
+	d3.select('#world-map').style({"height": height + "px"});
 	
-	var worldMap = new Datamap({
-	    element: document.getElementById("world-map"),
-	    projection: 'mercator',
-	    setProjection: setProjection,
-	    fills: fills,
-	    projectionConfig: {
-	        rotation: [-10, 0]
-	    }
-	});
-	
-	window.worldMap = worldMap;
-	
-	function setProjection(element, options) {
-	    var width = options.width || element.offsetWidth;
-	    var height = options.height || element.offsetHeight;
-	    var projection, path;
-	    var svg = this.svg;
-	
-	    options.scope = 'world';
-	
-	    projection = d3.geo[options.projection]()
-	        .scale((width + 1) / 2 / Math.PI)
-	        .translate([width / 2, height / (options.projection === "mercator" ? 1.45 : 1.8)])
-	        .rotate(options.projectionConfig.rotation);
-	
-	    path = d3.geo.path()
-	        .projection(projection);
-	
-	    return {path: path, projection: projection};
-	}
-	
-	var dataMap, centered;
+	var worldMap, dataMap, centered, svg;
 	
 	// =======================
 	// Load data from CSVs
 	// =======================
 	queue()
+	    .defer(d3.json, "/static/world-50m-cnd.json")
 	    .defer(d3.csv, "/countries.csv", cleanCSV)
-	    .await(function (error, countries) {
+	    .await(function (error, geojson, countries) {
+	        setupMap(geojson);
+	
 	        var data = {};
 	        countries.forEach(function (d) {
 	            data[d.id] = d.data;
@@ -169,35 +137,106 @@
 	}
 	
 	
+	//// =================
+	//// Show initial map
+	//// =================
+	
+	function mergeCountries(json, id1, id2) {
+	    var newCountry = topojson.mergeArcs(json, json.objects.countries.geometries.filter(function (d) {
+	        return (d.id === id1 || d.id === id2);
+	    }))
+	    var origCountry = json.objects.countries.geometries.filter(function (d) {
+	        return (d.id === id1);
+	    })[0];
+	    newCountry.id = origCountry.id;
+	    newCountry.properties = origCountry.properties;
+	    console.log(newCountry);
+	    json.objects.countries.geometries = json.objects.countries.geometries.filter(function (d) {
+	        return (d.id !== id1 && d.id !== id2);
+	    }).concat([newCountry]);
+	}
+	
+	function removeCountry(json, id) {
+	    json.objects.countries.geometries = json.objects.countries.geometries.filter(function (d) {
+	        return (d.id !== id);
+	    });
+	}
+	
+	function setupMap(json) {
+	    mergeCountries(json, "CYP", "UNK1");
+	    mergeCountries(json, "SRB", "UNK3");
+	    mergeCountries(json, "SOM", "UNK4");
+	    mergeCountries(json, "IND", "UNK5");
+	
+	    removeCountry(json, "UNK2");
+	
+	    worldMap = new Datamap({
+	        element: document.getElementById("world-map")
+	        , scope: 'countries'
+	        , projection: 'mercator'
+	        , setProjection: setProjection
+	        , fills: fills
+	        , projectionConfig: {
+	            rotation: [-11, 0]
+	        }
+	        , geographyConfig: {
+	            dataJson: json,
+	            highlightOnHover: false
+	        }
+	    });
+	    window.worldMap = worldMap;
+	
+	    svg = d3.select("#world-map").select("svg");
+	    g = svg.select("g");
+	    console.log(json.objects.countries.geometries);
+	    window.geometries = json.objects.countries.geometries;
+	    //g.append("path")
+	    //    .datum(topojson.merge(geojson, geojson.objects.countries.geometries.filter(function (d) {
+	    //        return (d.id == "SRB" || d.id == "UNK3");
+	    //    })))
+	    //    .style("fill", "#FF0000")
+	    //    .attr("d", worldMap.path);
+	
+	
+	    var $worldMapDiv = $("#world-map");
+	    svg.attr('viewBox', '0 0 ' + $worldMapDiv.width() + " " + $worldMapDiv.height());
+	    d3.select(window).on('resize', resize);
+	    svg.selectAll("path").style("stroke-width", "inherit");
+	}
+	
+	
 	//// =============================================
 	//// Set up map to display and resize correctly
 	//// =============================================
-	var worldMapContainer = d3.select("#world-map");
-	var svg = worldMapContainer.select("svg");
-	d3.select(window).on('resize', resize);
 	
 	
 	function resize() {
 	    // adjust things when the window size changes
-	    width = parseInt($('#world-map').width());
+	    width = parseInt(d3.select('#world-map').style('width'));
 	    width = width - margin.left - margin.right;
 	    height = width / mapRatio;
-	
-	    var prefix = '-webkit-transform' in document.body.style ? '-webkit-' : '-moz-transform' in document.body.style ? '-moz-' : '-ms-transform' in document.body.style ? '-ms-' : '',
-	          newsize = width,
-	          oldsize = svg.attr('data-width');
-	
-	    svg.selectAll('g').style(prefix + 'transform', 'scale(' + (newsize / oldsize) + ')');
-	
 	    svg.attr('width', width).attr('height', height);
 	
-	    $("#country-info").css("width", $("#side-menu").width());
+	    worldMap.resize();
+	    //$("#country-info").css("width", $("#side-menu").width());
 	}
 	
 	
-	//// =================
-	//// Show initial map
-	//// =================
+	function setProjection(element, options) {
+	    var width = options.width || element.offsetWidth;
+	    var height = options.height || element.offsetHeight;
+	    var projection, path;
+	
+	    projection = d3.geo[options.projection]()
+	        .scale((width + 1) / 2 / Math.PI)
+	        .translate([width / 2, height / (options.projection === "mercator" ? 1.45 : 1.8)])
+	        .rotate(options.projectionConfig.rotation);
+	
+	    path = d3.geo.path()
+	        .projection(projection);
+	
+	    return {path: path, projection: projection};
+	}
 	
 	function generateLogLegend(segments) {
 	    var labels = [];
@@ -209,8 +248,7 @@
 	}
 	
 	function updateMap(mapId) {
-	    console.log(mapId);
-	//    uncenter();
+	    uncenter();
 	    var mapDef = charts[mapId];
 	    var scale, segments, legendData, tooltipFn, infoFn;
 	
@@ -227,11 +265,12 @@
 	        segments = mapDef.segments;
 	        var colors = colorbrewer[colorscheme][segments];
 	        legendData = _(colors).zip(generateLogLegend(segments));
-	        infoFn = function () {
-	            var data = dataMap.get(this.id);
-	            if (data !== undefined) {
-	                return "<div><strong>" + data.name + "</strong></div><div>" + d3.format(",d")(data[mapId]) + "</div>";
-	            }
+	        infoFn = function (data) {
+	            return {
+	                "fillKey": fillKey(data[mapId]),
+	                "countryName": data.name,
+	                "description": d3.format(",d")(data[mapId])
+	            };
 	        }
 	    } else {
 	        segments = mapDef.ordinals.length;
@@ -239,10 +278,11 @@
 	
 	        var colors = colorbrewer[colorscheme][segments];
 	        legendData = _(colors).zip(mapDef.ordinals);
-	        infoFn = function () {
-	            var data = dataMap.get(this.id);
-	            if (data !== undefined) {
-	                return "<div><strong>" + data.name + "</strong></div><div>" + mapDef.ordinals[data[mapId]] + "</div>";
+	        infoFn = function (data) {
+	            return {
+	                "fillKey": fillKey(data[mapId]),
+	                "countryName": data.name,
+	                "description": mapDef.ordinals[data[mapId]]
 	            }
 	        }
 	    }
@@ -272,63 +312,89 @@
 	
 	    var newData = {};
 	    dataMap.forEach(function (code, d) {
-	        newData[code] = {fillKey: fillKey(d[mapId])}
+	        newData[code] = infoFn(d);
 	    });
 	
 	    worldMap.updateChoropleth(newData);
 	}
-	//
-	//function zoom() {
-	//    d3.event.stopPropagation();
-	//
-	//    if (this === centered || this === svg.node()) {
-	//        uncenter();
-	//    } else {
-	//        var path = d3.select(this);
-	//        center(path);
-	//    }
-	//}
-	//
-	//
-	//function center(path) {
-	//    var g = svg.select("g"),
-	//        gbox = g.node().getBBox(),
-	//        bbox = path.node().getBBox(),
-	//        spacing = 20,
-	//        x = bbox.x - spacing,
-	//        y = bbox.y - spacing,
-	//        boxheight = bbox.height + (2 * spacing),
-	//        boxwidth = bbox.width + (2 * spacing),
-	//        gratio = gbox.width / gbox.height,
-	//        scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth),
-	//        newheight = Math.max(boxheight, gratio / boxwidth),
-	//        newwidth = Math.max(boxwidth, gratio * boxheight),
-	//        dx = -x + (newwidth - boxwidth) / 2,
-	//        dy = -y + (newheight - boxheight) / 2;
-	//
-	//    g.transition().duration(750)
-	//        .attr("transform", "scale(" + scale + ")" + "translate(" + dx + "," + dy + ")")
-	//        .style("stroke-width", 1 / scale);
-	//    d3.selectAll(".land").classed("centered", false);
-	//    path.classed("centered", true);
-	//
-	//    d3.select("#country-info")
-	//        .html(path.attr("data-info"))
-	//        .classed("hidden", false);
-	//
-	//    centered = path.node();
-	//}
-	//
-	//function uncenter() {
-	//    var g = svg.select("g");
-	//
-	//    g.transition().duration(750).attr("transform", "").style("stroke-width", 1);
-	//    d3.select(centered).classed("centered", false);
-	//    d3.select("#country-info").html("").classed("hidden", true);
-	//    d3.select("#country-select").node().value = "---";
-	//    centered = null;
-	//}
-	//
+	
+	function zoom() {
+	    d3.event.stopPropagation();
+	
+	    if (this === centered || this === svg.node()) {
+	        uncenter();
+	    } else {
+	        if (centered) {
+	            resetStyle(centered);
+	        }
+	        var path = d3.select(this);
+	        center(path);
+	    }
+	}
+	
+	function resetStyle(element) {
+	    element = d3.select(element);
+	    var previousAttributes = JSON.parse(element.attr('data-previousAttributes'));
+	    element.style(previousAttributes);
+	}
+	
+	
+	function center(path) {
+	    var g = svg.select("g"),
+	        gbox = g.node().getBBox(),
+	        bbox = path.node().getBBox(),
+	        spacing = 20,
+	        x = bbox.x - spacing,
+	        y = bbox.y - spacing,
+	        boxheight = Math.max(50, bbox.height + (2 * spacing)),
+	        boxwidth = Math.max(50, bbox.width + (2 * spacing)),
+	        gratio = gbox.width / gbox.height,
+	        scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth),
+	        newheight = Math.max(boxheight, gratio / boxwidth),
+	        newwidth = Math.max(boxwidth, gratio * boxheight),
+	        dx = -x + (newwidth - boxwidth) / 2,
+	        dy = -y + (newheight - boxheight) / 2;
+	
+	    g.transition().duration(750)
+	        .attr("transform", "scale(" + scale + ") " + "translate(" + dx + "," + dy + ")")
+	        .style("stroke-width", 1 / scale);
+	
+	    svg.selectAll("path").classed("centered", false);
+	
+	    var previousAttributes = {
+	        'fill': path.style('fill'),
+	        'stroke': path.style('stroke'),
+	        'fill-opacity': path.style('fill-opacity')
+	    };
+	
+	    path.attr('data-previousAttributes', JSON.stringify(previousAttributes))
+	        .style("fill", "#5fad9f")
+	        .classed("centered", true);
+	
+	    d3.select("#country-info")
+	        .html(infoTemplate(JSON.parse(path.attr("data-info"))))
+	        .classed("hidden", false);
+	
+	    centered = path.node();
+	}
+	
+	var infoTemplate = function (data) {
+	    return "<h4>" + data.countryName + "</h4>" +
+	        "<div>" + data.description + "</div>";
+	}
+	
+	function uncenter() {
+	    var g = svg.select("g");
+	    g.transition().duration(750).attr("transform", "").style("stroke-width", 1);
+	    if (centered) {
+	        resetStyle(centered);
+	    }
+	
+	    d3.select("#country-info").html("").classed("hidden", true);
+	    d3.select("#country-select").node().value = "---";
+	    centered = null;
+	}
+	
 	function init() {
 	    var MapRouter = Backbone.Router.extend({
 	        routes: {
@@ -344,14 +410,13 @@
 	    updateMap(initialMap);
 	
 	    //// Set up zooming
-	    //var g = svg.select("g");
-	    //svg.on("click", zoom);
-	    //g.selectAll("path.land").on("click", zoom);
+	    var g = svg.select("g");
+	    svg.on("click", zoom);
+	    g.selectAll("path").on("click", zoom);
 	
 	    resize();
 	
 	    var countries = dataMap.keys();
-	    console.log(countries);
 	    var countryOptions = _.zip(countries, _.map(countries, function (cc) {
 	        return dataMap.get(cc)["name"];
 	    }));
@@ -370,13 +435,13 @@
 	            return d[1];
 	        })
 	
-	    //d3.select("#country-select").on("change", function () {
-	    //    if (this.value === "---") {
-	    //        uncenter();
-	    //    } else {
-	    //        center(d3.select("#" + this.value));
-	    //    }
-	    //});
+	    d3.select("#country-select").on("change", function () {
+	        if (this.value === "---") {
+	            uncenter();
+	        } else {
+	            center(d3.select("." + this.value));
+	        }
+	    });
 	
 	    var router = new MapRouter();
 	    Backbone.history.start();
