@@ -46,7 +46,8 @@ class Chart(models.Model):
     )
 
     name = models.CharField(unique=True, max_length=25,
-                            validators=[validate_chart_name])
+                            validators=[validate_chart_name],
+                            editable=False)
     title = models.CharField(max_length=255)
     scale = models.CharField(max_length=20, choices=SCALES)
     ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True)

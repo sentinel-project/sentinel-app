@@ -30,11 +30,7 @@ g {
 }
 
 .legend, #country-dropdown {
-    padding: 1.5em 0 0 1.5em;
-}
-
-#country-dropdown {
-    /*text-align: right;*/
+    padding: 1em 0 0 1em;
 }
 
 .callout-title {
