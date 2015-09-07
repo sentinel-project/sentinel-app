@@ -78,7 +78,7 @@
 	// Load data from CSVs
 	// =======================
 	queue()
-	    .defer(d3.json, "/static/world-50m-cnd.json")
+	    .defer(d3.json, "/static/world-50m.json")
 	    .defer(d3.csv, "/countries.csv", cleanCSV)
 	    .await(function (error, json, countries) {
 	        setupMap(json);
@@ -141,34 +141,7 @@
 	//// Show initial map
 	//// =================
 	
-	function mergeCountries(json, id1, id2) {
-	    var newCountry = topojson.mergeArcs(json, json.objects.countries.geometries.filter(function (d) {
-	        return (d.id === id1 || d.id === id2);
-	    }))
-	    var origCountry = json.objects.countries.geometries.filter(function (d) {
-	        return (d.id === id1);
-	    })[0];
-	    newCountry.id = origCountry.id;
-	    newCountry.properties = origCountry.properties;
-	    json.objects.countries.geometries = json.objects.countries.geometries.filter(function (d) {
-	        return (d.id !== id1 && d.id !== id2);
-	    }).concat([newCountry]);
-	}
-	
-	function removeCountry(json, id) {
-	    json.objects.countries.geometries = json.objects.countries.geometries.filter(function (d) {
-	        return (d.id !== id);
-	    });
-	}
-	
 	function setupMap(json) {
-	    mergeCountries(json, "CYP", "UNK1");
-	    mergeCountries(json, "SRB", "UNK3");
-	    mergeCountries(json, "SOM", "UNK4");
-	    mergeCountries(json, "IND", "UNK5");
-	
-	    removeCountry(json, "UNK2");
-	
 	    worldMap = new Datamap({
 	        element: document.getElementById("world-map")
 	        , scope: 'countries'
