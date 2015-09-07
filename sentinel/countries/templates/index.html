@@ -14,9 +14,11 @@
     <link href='//fonts.googleapis.com/css?family=Open+Sans:400,400italic,700italic,700'
           rel='stylesheet' type='text/css'>
     ,
-    <link rel="stylesheet" href="{% static "css/colorbrewer.css" %}" media="screen"
+    <link rel="stylesheet" href="{% static "css/colorbrewer.css" %}"
+          media="screen"
           charset="utf-8">
-    <link rel="stylesheet" href="{% static "css/style.css" %}" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="{% static "css/style.css" %}" media="screen"
+          charset="utf-8">
 </head>
 <body>
 <div class="container-fluid">
@@ -52,19 +54,26 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="targets">
                     <ul class="list-unstyled">
-                        <li><a id="link-mdr_estimated_cases" href="#map/mdr_estimated_cases">Estimated
+                        <li><a id="link-mdr_estimated_cases"
+                               href="#map/mdr_estimated_cases">Estimated
                             MDR-TB Cases</a></li>
-                        <li><a id="link-mdr_eval_0" href="#map/mdr_eval_0">0-4 Year
+                        <li><a id="link-mdr_eval_0" href="#map/mdr_eval_0">0-4
+                            Year
                             Olds: Needing Evaluation</a></li>
-                        <li><a id="link-mdr_eval_5" href="#map/mdr_eval_5">5-14 Year
+                        <li><a id="link-mdr_eval_5" href="#map/mdr_eval_5">5-14
+                            Year
                             Olds: Needing Evaluation</a></li>
-                        <li><a id="link-mdr_treat_0" href="#map/mdr_treat_0">0-4 Year
+                        <li><a id="link-mdr_treat_0" href="#map/mdr_treat_0">0-4
+                            Year
                             Olds: Needing Treatment</a></li>
-                        <li><a id="link-mdr_treat_5" href="#map/mdr_treat_5">5-14 Year
+                        <li><a id="link-mdr_treat_5" href="#map/mdr_treat_5">5-14
+                            Year
                             Olds: Needing Treatment</a></li>
-                        <li><a id="link-mdr_therapy_0" href="#map/mdr_therapy_0">0-4
+                        <li><a id="link-mdr_therapy_0"
+                               href="#map/mdr_therapy_0">0-4
                             Year Olds: Needing Preventative Therapy</a></li>
-                        <li><a id="link-mdr_therapy_5" href="#map/mdr_therapy_5">5-14
+                        <li><a id="link-mdr_therapy_5"
+                               href="#map/mdr_therapy_5">5-14
                             Year Olds: Needing Preventative Therapy</a></li>
                     </ul>
                 </div>
@@ -79,28 +88,32 @@
         <div class="col-lg-8 col-sm-7">
             <h3 id="map-title"></h3>
 
-            <div id="row">
+            <div id="row" class="clearfix">
                 <div id="legend" class="legend col-sm-6"></div>
                 <div id="country-dropdown" class="col-sm-5">
                     <select name="country" id="country-select">
                     </select>
                 </div>
-                <div id="world-map" class="map">
-                    {% include "world.html" %}
+            </div>
+            <div id="row">
+                <div class="col-sm-12">
+                    <div id="world-map" class="map">
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script>
-        window.charts = {{ charts_json|safe }};
-    </script>
-    <script src="{% static "iframeResizer.contentWindow.min.js" %}"></script>
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="{% static "bundle.js" %}"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script>
+    window.charts = {{ charts_json|safe }};
+</script>
+<script src="{% static "iframeResizer.contentWindow.min.js" %}"></script>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="{% static "bundle.js" %}"></script>
 </body>
 </html>

@@ -1,25 +1,38 @@
 var d3 = require('d3');
+var Datamap = require('datamaps/src/js/datamaps');
 var queue = require('queue-async');
 var _ = require("underscore");
 var colorbrewer = require("colorbrewer");
 var Backbone = require('backbone');
 
 var margin = {top: 10, left: 10, bottom: 10, right: 10}
-    , width = parseInt(d3.select('#world-map').style('width'))
+    , width = parseInt($('#world-map').width())
     , width = width - margin.left - margin.right
-    , mapRatio = 1008 / 651
+    , mapRatio = 3 / 2
     , height = width / mapRatio;
 
 var colorscheme = "Blues";
 
-var dataMap, centered;
+var fills = {defaultFill: "#CCC"};
+_(colorbrewer[colorscheme]).each(function (colors, count) {
+    _(colors).each(function (color, idx) {
+        fills["q" + idx + "-" + count] = color;
+    })
+});
+
+d3.select('#world-map').style({"height": height + "px"});
+
+var worldMap, dataMap, centered, svg;
 
 // =======================
 // Load data from CSVs
 // =======================
 queue()
+    .defer(d3.json, "/static/world-50m.json")
     .defer(d3.csv, "/countries.csv", cleanCSV)
-    .await(function (error, countries) {
+    .await(function (error, json, countries) {
+        setupMap(json);
+
         var data = {};
         countries.forEach(function (d) {
             data[d.id] = d.data;
@@ -74,14 +87,40 @@ function cleanCSV(data) {
 }
 
 
-// =============================================
-// Set up map to display and resize correctly
-// =============================================
-var worldMap = d3.select("#world-map");
-worldMap.classed(colorscheme, true);
-var svg = worldMap.select("svg");
-svg.attr('width', width).attr('height', height);
-d3.select(window).on('resize', resize);
+//// =================
+//// Show initial map
+//// =================
+
+function setupMap(json) {
+    worldMap = new Datamap({
+        element: document.getElementById("world-map")
+        , scope: 'countries'
+        , projection: 'mercator'
+        , setProjection: setProjection
+        , fills: fills
+        , projectionConfig: {
+            rotation: [-11, 0]
+        }
+        , geographyConfig: {
+            dataJson: json,
+            highlightOnHover: false
+        }
+    });
+    window.worldMap = worldMap;
+
+    svg = d3.select("#world-map").select("svg");
+    g = svg.select("g");
+
+    var $worldMapDiv = $("#world-map");
+    svg.attr('viewBox', '0 0 ' + $worldMapDiv.width() + " " + $worldMapDiv.height());
+    d3.select(window).on('resize', resize);
+    svg.selectAll("path").style("stroke-width", "inherit");
+}
+
+
+//// =============================================
+//// Set up map to display and resize correctly
+//// =============================================
 
 
 function resize() {
@@ -89,15 +128,27 @@ function resize() {
     width = parseInt(d3.select('#world-map').style('width'));
     width = width - margin.left - margin.right;
     height = width / mapRatio;
-
     svg.attr('width', width).attr('height', height);
-    $("#country-info").css("width", $("#side-menu").width());
+
+    worldMap.resize();
 }
 
 
-// =================
-// Show initial map
-// =================
+function setProjection(element, options) {
+    var width = options.width || element.offsetWidth;
+    var height = options.height || element.offsetHeight;
+    var projection, path;
+
+    projection = d3.geo[options.projection]()
+        .scale((width + 1) / 2 / Math.PI)
+        .translate([width / 2, height / (options.projection === "mercator" ? 1.45 : 1.8)])
+        .rotate(options.projectionConfig.rotation);
+
+    path = d3.geo.path()
+        .projection(projection);
+
+    return {path: path, projection: projection};
+}
 
 function generateLogLegend(segments) {
     var labels = [];
@@ -111,8 +162,7 @@ function generateLogLegend(segments) {
 function updateMap(mapId) {
     uncenter();
     var mapDef = charts[mapId];
-    var svg = d3.select("#world-map").select("svg");
-    var scale, segments, legendData, tooltipFn, infoFn;
+    var scale, segments, legendData, infoFn;
 
     d3.selectAll(".map-list a").classed({"active": false});
 
@@ -122,23 +172,17 @@ function updateMap(mapId) {
     var tabName = $mapLink.closest('.tab-pane').attr('id');
     $("a[href='#" + tabName + "']").tab('show');
 
-    tooltipFn = function () {
-        var data = dataMap.get(this.id);
-        if (data !== undefined) {
-            return "<h4>" + data.name + "</h4>";
-        }
-    }
-
     if (mapDef.scale === "log") {
         scale = d3.scale.log();
         segments = mapDef.segments;
         var colors = colorbrewer[colorscheme][segments];
         legendData = _(colors).zip(generateLogLegend(segments));
-        infoFn = function () {
-            var data = dataMap.get(this.id);
-            if (data !== undefined) {
-                return "<div><strong>" + data.name + "</strong></div><div>" + d3.format(",d")(data[mapId]) + "</div>";
-            }
+        infoFn = function (data) {
+            return {
+                "fillKey": fillKey(data[mapId]),
+                "countryName": data.name,
+                "description": d3.format(",d")(data[mapId])
+            };
         }
     } else {
         segments = mapDef.ordinals.length;
@@ -146,10 +190,11 @@ function updateMap(mapId) {
 
         var colors = colorbrewer[colorscheme][segments];
         legendData = _(colors).zip(mapDef.ordinals);
-        infoFn = function () {
-            var data = dataMap.get(this.id);
-            if (data !== undefined) {
-                return "<div><strong>" + data.name + "</strong></div><div>" + mapDef.ordinals[data[mapId]] + "</div>";
+        infoFn = function (data) {
+            return {
+                "fillKey": fillKey(data[mapId]),
+                "countryName": data.name,
+                "description": mapDef.ordinals[data[mapId]]
             }
         }
     }
@@ -170,26 +215,19 @@ function updateMap(mapId) {
             return d[1];
         });
 
-    var countries = svg.selectAll("path.land");
-
-    var colorClass = function (i) {
+    var fillKey = function (i) {
         if (i === 0) {
             return "q0-" + segments;
         }
         return "q" + Math.min(segments - 1, Math.floor(scale(i))) + "-" + segments;
-    }
+    };
 
-    countries
-        .attr("class", function () {
-            if (dataMap.get(this.id) !== undefined) {
-                return "land " + colorClass(dataMap.get(this.id)[mapId]);
-            } else {
-                return "land no-data";
-            }
-        })
-        .attr("data-toggle", "tooltip")
-        .attr("data-original-title", tooltipFn)
-        .attr("data-info", infoFn);
+    var newData = {};
+    dataMap.forEach(function (code, d) {
+        newData[code] = infoFn(d);
+    });
+
+    worldMap.updateChoropleth(newData);
 }
 
 function zoom() {
@@ -198,21 +236,32 @@ function zoom() {
     if (this === centered || this === svg.node()) {
         uncenter();
     } else {
+        if (centered) {
+            resetStyle(centered);
+        }
         var path = d3.select(this);
         center(path);
     }
 }
 
+function resetStyle(element) {
+    element = d3.select(element);
+    var previousAttributes = JSON.parse(element.attr('data-previousAttributes'));
+    element.style(previousAttributes);
+}
+
 
 function center(path) {
+    centered = path.node();
+
     var g = svg.select("g"),
         gbox = g.node().getBBox(),
         bbox = path.node().getBBox(),
         spacing = 20,
         x = bbox.x - spacing,
         y = bbox.y - spacing,
-        boxheight = bbox.height + (2 * spacing),
-        boxwidth = bbox.width + (2 * spacing),
+        boxheight = Math.max(50, bbox.height + (2 * spacing)),
+        boxwidth = Math.max(50, bbox.width + (2 * spacing)),
         gratio = gbox.width / gbox.height,
         scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth),
         newheight = Math.max(boxheight, gratio / boxwidth),
@@ -220,24 +269,50 @@ function center(path) {
         dx = -x + (newwidth - boxwidth) / 2,
         dy = -y + (newheight - boxheight) / 2;
 
+    // special case since the US wraps around
+    if (path.classed("USA")) {
+        x = 0;
+        boxwidth = 404 + (2 * spacing);
+        scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth);
+        newwidth = Math.max(boxwidth, gratio * boxheight);
+        dx = -x + (newwidth - boxwidth) / 2;
+    }
+
     g.transition().duration(750)
-        .attr("transform", "scale(" + scale + ")" + "translate(" + dx + "," + dy + ")")
+        .attr("transform", "scale(" + scale + ") " + "translate(" + dx + "," + dy + ")")
         .style("stroke-width", 1 / scale);
-    d3.selectAll(".land").classed("centered", false);
-    path.classed("centered", true);
 
-    d3.select("#country-info")
-        .html(path.attr("data-info"))
-        .classed("hidden", false);
+    svg.selectAll("path").classed("centered", false);
 
-    centered = path.node();
+    var previousAttributes = {
+        'fill': path.style('fill'),
+        'stroke': path.style('stroke'),
+        'fill-opacity': path.style('fill-opacity')
+    };
+
+    path.attr('data-previousAttributes', JSON.stringify(previousAttributes))
+        .style("fill", "#5fad9f")
+        .classed("centered", true);
+
+    if (path.attr("data-info")) {
+        d3.select("#country-info")
+            .html(infoTemplate(JSON.parse(path.attr("data-info"))))
+            .classed("hidden", false);
+    }
+}
+
+var infoTemplate = function (data) {
+    return "<h4>" + data.countryName + "</h4>" +
+        "<div>" + data.description + "</div>";
 }
 
 function uncenter() {
     var g = svg.select("g");
-
     g.transition().duration(750).attr("transform", "").style("stroke-width", 1);
-    d3.select(centered).classed("centered", false);
+    if (centered) {
+        resetStyle(centered);
+    }
+
     d3.select("#country-info").html("").classed("hidden", true);
     d3.select("#country-select").node().value = "---";
     centered = null;
@@ -254,52 +329,40 @@ function init() {
         }
     });
 
-    $('svg path.land').tooltip({
-        container: "#world-map",
-        html: true,
-        placement: "auto top",
-        viewport: '#world-map'
-    });
-
     var initialMap = "reported";
     updateMap(initialMap);
 
-    // Set up zooming
+    //// Set up zooming
     var g = svg.select("g");
     svg.on("click", zoom);
-    g.selectAll("path.land").on("click", zoom);
+    g.selectAll("path").on("click", zoom);
+
     resize();
 
-    var countries = _.filter(dataMap.keys(), function (cc) {
-        return !!d3.select("#" + cc).node()
-    });
-    countries = ["---"].concat(countries);
+    var countries = dataMap.keys();
     var countryOptions = _.zip(countries, _.map(countries, function (cc) {
-        if (dataMap.get(cc)) {
-            return dataMap.get(cc)["name"];
-        } else {
-            return cc;
-        }
+        return dataMap.get(cc)["name"];
     }));
     countryOptions = _.sortBy(countryOptions, function (d) {
         return d[1];
-    })
+    });
+    countryOptions = [["---", "---"]].concat(countryOptions)
 
     d3.select("#country-select").selectAll("option").data(countryOptions)
         .enter()
         .append('option')
         .attr("value", function (d) {
-            return d[0]
+            return d[0];
         })
         .html(function (d) {
-            return d[1]
+            return d[1];
         })
 
     d3.select("#country-select").on("change", function () {
         if (this.value === "---") {
             uncenter();
         } else {
-            center(d3.select("#" + this.value));
+            center(d3.select("." + this.value));
         }
     });
 

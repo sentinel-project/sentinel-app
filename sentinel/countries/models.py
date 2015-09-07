@@ -38,7 +38,7 @@ class Country(models.Model):
         ordering = ('code',)
         verbose_name_plural = 'countries'
 
-    code = models.CharField("Country code", max_length=2, unique=True)
+    code = models.CharField("Country code 3-char", max_length=3, unique=True)
     name = models.CharField("Country name", max_length=255, unique=True)
     mdr_estimated_cases = models.PositiveIntegerField("Estimated MDR-TB cases")
     mdr_eval_0 = models.PositiveIntegerField(
