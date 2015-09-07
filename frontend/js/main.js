@@ -31,8 +31,8 @@ var worldMap, dataMap, centered, svg;
 queue()
     .defer(d3.json, "/static/world-50m-cnd.json")
     .defer(d3.csv, "/countries.csv", cleanCSV)
-    .await(function (error, geojson, countries) {
-        setupMap(geojson);
+    .await(function (error, json, countries) {
+        setupMap(json);
 
         var data = {};
         countries.forEach(function (d) {
@@ -101,7 +101,6 @@ function mergeCountries(json, id1, id2) {
     })[0];
     newCountry.id = origCountry.id;
     newCountry.properties = origCountry.properties;
-    console.log(newCountry);
     json.objects.countries.geometries = json.objects.countries.geometries.filter(function (d) {
         return (d.id !== id1 && d.id !== id2);
     }).concat([newCountry]);
@@ -139,15 +138,6 @@ function setupMap(json) {
 
     svg = d3.select("#world-map").select("svg");
     g = svg.select("g");
-    console.log(json.objects.countries.geometries);
-    window.geometries = json.objects.countries.geometries;
-    //g.append("path")
-    //    .datum(topojson.merge(geojson, geojson.objects.countries.geometries.filter(function (d) {
-    //        return (d.id == "SRB" || d.id == "UNK3");
-    //    })))
-    //    .style("fill", "#FF0000")
-    //    .attr("d", worldMap.path);
-
 
     var $worldMapDiv = $("#world-map");
     svg.attr('viewBox', '0 0 ' + $worldMapDiv.width() + " " + $worldMapDiv.height());
@@ -169,7 +159,6 @@ function resize() {
     svg.attr('width', width).attr('height', height);
 
     worldMap.resize();
-    //$("#country-info").css("width", $("#side-menu").width());
 }
 
 
@@ -291,6 +280,8 @@ function resetStyle(element) {
 
 
 function center(path) {
+    centered = path.node();
+
     var g = svg.select("g"),
         gbox = g.node().getBBox(),
         bbox = path.node().getBBox(),
@@ -305,6 +296,15 @@ function center(path) {
         newwidth = Math.max(boxwidth, gratio * boxheight),
         dx = -x + (newwidth - boxwidth) / 2,
         dy = -y + (newheight - boxheight) / 2;
+
+    // special case since the US wraps around
+    if (path.classed("USA")) {
+        x = 0;
+        boxwidth = 404 + (2 * spacing);
+        scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth);
+        newwidth = Math.max(boxwidth, gratio * boxheight);
+        dx = -x + (newwidth - boxwidth) / 2;
+    }
 
     g.transition().duration(750)
         .attr("transform", "scale(" + scale + ") " + "translate(" + dx + "," + dy + ")")
@@ -322,11 +322,11 @@ function center(path) {
         .style("fill", "#5fad9f")
         .classed("centered", true);
 
-    d3.select("#country-info")
-        .html(infoTemplate(JSON.parse(path.attr("data-info"))))
-        .classed("hidden", false);
-
-    centered = path.node();
+    if (path.attr("data-info")) {
+        d3.select("#country-info")
+            .html(infoTemplate(JSON.parse(path.attr("data-info"))))
+            .classed("hidden", false);
+    }
 }
 
 var infoTemplate = function (data) {
