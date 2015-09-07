@@ -9,18 +9,8 @@ var margin = {top: 10, left: 10, bottom: 10, right: 10}
     , width = parseInt($('#world-map').width())
     , width = width - margin.left - margin.right
     , mapRatio = 3 / 2
-    , height = width / mapRatio;
-
-var colorscheme = "Blues";
-
-var fills = {defaultFill: "#CCC"};
-_(colorbrewer[colorscheme]).each(function (colors, count) {
-    _(colors).each(function (color, idx) {
-        fills["q" + idx + "-" + count] = color;
-    })
-});
-
-d3.select('#world-map').style({"height": height + "px"});
+    , height = width / mapRatio
+    , colorscheme = "Blues";
 
 var worldMap, dataMap, centered, svg;
 
@@ -92,12 +82,14 @@ function cleanCSV(data) {
 //// =================
 
 function setupMap(json) {
+    d3.select('#world-map').style({"height": height + "px"});
+
     worldMap = new Datamap({
         element: document.getElementById("world-map")
         , scope: 'countries'
         , projection: 'mercator'
         , setProjection: setProjection
-        , fills: fills
+        , fills: fillsForScheme('Grays')
         , projectionConfig: {
             rotation: [-11, 0]
         }
@@ -106,7 +98,6 @@ function setupMap(json) {
             highlightOnHover: false
         }
     });
-    window.worldMap = worldMap;
 
     svg = d3.select("#world-map").select("svg");
     g = svg.select("g");
@@ -116,6 +107,19 @@ function setupMap(json) {
     d3.select(window).on('resize', resize);
     svg.selectAll("path").style("stroke-width", "inherit");
 }
+
+function fillsForScheme(colorscheme) {
+    var fills = {defaultFill: "#CCC"};
+    _(colorbrewer[colorscheme]).each(function (colors, count) {
+        _(colors).each(function (color, idx) {
+            fills["q" + idx + "-" + count] = color;
+        })
+    });
+    return fills;
+}
+
+
+
 
 
 //// =============================================
@@ -175,7 +179,7 @@ function updateMap(mapId) {
     if (mapDef.scale === "log") {
         scale = d3.scale.log();
         segments = mapDef.segments;
-        var colors = colorbrewer[colorscheme][segments];
+        var colors = colorbrewer[mapDef.colorscheme][segments];
         legendData = _(colors).zip(generateLogLegend(segments));
         infoFn = function (data) {
             return {
@@ -188,7 +192,7 @@ function updateMap(mapId) {
         segments = mapDef.ordinals.length;
         scale = d3.scale.linear();
 
-        var colors = colorbrewer[colorscheme][segments];
+        var colors = colorbrewer[mapDef.colorscheme][segments];
         legendData = _(colors).zip(mapDef.ordinals);
         infoFn = function (data) {
             return {
@@ -227,6 +231,7 @@ function updateMap(mapId) {
         newData[code] = infoFn(d);
     });
 
+    worldMap.options.fills = fillsForScheme(mapDef.colorscheme);
     worldMap.updateChoropleth(newData);
 }
 

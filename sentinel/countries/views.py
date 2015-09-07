@@ -33,6 +33,7 @@ def index(request):
             "scale": chart.scale,
             "ordinals": chart.ordinals,
             "segments": chart.segments,
+            "colorscheme": chart.colorscheme,
         }
     charts_json = json.dumps(charts_dict)
     return render(request, "index.html", {"charts_json": charts_json})

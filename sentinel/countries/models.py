@@ -9,6 +9,8 @@ def validate_chart_name(value):
     if re.fullmatch(r'[a-z0-9_]+', value) is None:
         raise ValidationError('%s is not a valid chart name' % value)
 
+def duple(x):
+    return (x, x,)
 
 class Chart(models.Model):
     ORDINAL = 'ordinal'
@@ -22,12 +24,34 @@ class Chart(models.Model):
 
     SEGMENTS = [(n, str(n)) for n in range(3, 13)]
 
+    COLORSCHEMES = (
+        duple('Blues'),
+        duple('Greens'),
+        duple('Grays'),
+        duple('Oranges'),
+        duple('Purples'),
+        duple('Reds'),
+        ('BuGn', "Blue to Green"),
+        ('BuPu', "Blue to Purple"),
+        ('GnBu', "Green to Blue"),
+        ('OrRd', "Orange to Red"),
+        ('PuBu', "Purple to Blue"),
+        ('PuRd', "Purple to Red"),
+        ('PuBuGn', "Purple/Blue/Green"),
+        ('RdPu', "Red to Purple"),
+        ('YlGn', "Yellow to Green"),
+        ('YlGnBu', "Yellow/Green/Blue"),
+        ('YlOrBr', "Yellow/Orange/Brown"),
+        ('YlOrRd', "Yellow/Orange/Red"),
+    )
+
     name = models.CharField(unique=True, max_length=25,
                             validators=[validate_chart_name])
     title = models.CharField(max_length=255)
     scale = models.CharField(max_length=20, choices=SCALES)
     ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True)
     segments = models.PositiveIntegerField(null=True, blank=True, choices=SEGMENTS)
+    colorscheme = models.CharField(max_length=20, choices=COLORSCHEMES, default='Blues')
 
     def __str__(self):
         return self.title
