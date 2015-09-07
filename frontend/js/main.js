@@ -179,7 +179,7 @@ function updateMap(mapId) {
     if (mapDef.scale === "log") {
         scale = d3.scale.log();
         segments = mapDef.segments;
-        var colors = colorbrewer[mapDef.colorscheme][segments];
+        var colors = colorbrewer[mapDef.colorscheme][segments + 1].slice(1);
         legendData = _(colors).zip(generateLogLegend(segments));
         infoFn = function (data) {
             return {
@@ -192,7 +192,7 @@ function updateMap(mapId) {
         segments = mapDef.ordinals.length;
         scale = d3.scale.linear();
 
-        var colors = colorbrewer[mapDef.colorscheme][segments];
+        var colors = colorbrewer[mapDef.colorscheme][segments + 1].slice(1);
         legendData = _(colors).zip(mapDef.ordinals);
         infoFn = function (data) {
             return {
@@ -220,10 +220,11 @@ function updateMap(mapId) {
         });
 
     var fillKey = function (i) {
+        var max = segments + 1;
         if (i === 0) {
-            return "q0-" + segments;
+            return "q1-" + max;
         }
-        return "q" + Math.min(segments - 1, Math.floor(scale(i))) + "-" + segments;
+        return "q" + Math.min(max - 1, Math.floor(scale(i)) + 1) + "-" + max;
     };
 
     var newData = {};
@@ -265,8 +266,8 @@ function center(path) {
         spacing = 20,
         x = bbox.x - spacing,
         y = bbox.y - spacing,
-        boxheight = Math.max(50, bbox.height + (2 * spacing)),
-        boxwidth = Math.max(50, bbox.width + (2 * spacing)),
+        boxheight = Math.max(1, bbox.height + (2 * spacing)),
+        boxwidth = Math.max(1, bbox.width + (2 * spacing)),
         gratio = gbox.width / gbox.height,
         scale = Math.min(gbox.height / boxheight, gbox.width / boxwidth),
         newheight = Math.max(boxheight, gratio / boxwidth),
