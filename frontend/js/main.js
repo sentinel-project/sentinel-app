@@ -3,7 +3,7 @@ var Datamap = require('datamaps/src/js/datamaps');
 var queue = require('queue-async');
 var _ = require("underscore");
 var colorbrewer = require("colorbrewer");
-var Backbone = require('backbone');
+var Rlite = require('rlite-router');
 
 var margin = {top: 10, left: 10, bottom: 10, right: 10}
     , width = parseInt($('#world-map').width())
@@ -117,9 +117,6 @@ function fillsForScheme(colorscheme) {
     });
     return fills;
 }
-
-
-
 
 
 //// =============================================
@@ -323,19 +320,27 @@ function uncenter() {
     centered = null;
 }
 
-function init() {
-    var MapRouter = Backbone.Router.extend({
-        routes: {
-            "map/:mapName": "showMap"
-        },
 
-        showMap: function (mapName) {
-            updateMap(mapName);
-        }
+function init() {
+    var r = Rlite();
+
+    // Default route
+    r.add('', function () {
+        updateMap("reported");
     });
 
-    var initialMap = "reported";
-    updateMap(initialMap);
+    r.add('map/:name', function (r) {
+        updateMap(r.params.name);
+    });
+
+    // Hash-based routing
+    function processHash() {
+        var hash = location.hash || '#';
+        r.run(hash.slice(1));
+    }
+
+    window.addEventListener('hashchange', processHash);
+    processHash();
 
     //// Set up zooming
     var g = svg.select("g");
@@ -370,7 +375,4 @@ function init() {
             center(d3.select("." + this.value));
         }
     });
-
-    var router = new MapRouter();
-    Backbone.history.start();
 }
