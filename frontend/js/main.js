@@ -95,10 +95,10 @@ function setupMap(json) {
         , geographyConfig: {
             dataJson: json,
             highlightOnHover: false,
-            popupTemplate: function (geo, data) {
+            popupTemplate: function (geography, data) {
                 return [
                     '<div class="hoverinfo"><strong>',
-                    data.countryName,
+                    data ? data.countryName : geography.properties.name,
                     '</strong></div>'
                 ].join('');
             }
