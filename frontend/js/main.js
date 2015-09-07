@@ -352,7 +352,7 @@ function init() {
     countryOptions = _.sortBy(countryOptions, function (d) {
         return d[1];
     });
-    countryOptions = [["---", "---"]].concat(countryOptions)
+    countryOptions = [["---", "Select country"]].concat(countryOptions)
 
     d3.select("#country-select").selectAll("option").data(countryOptions)
         .enter()
