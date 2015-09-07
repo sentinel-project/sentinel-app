@@ -1,6 +1,5 @@
 var d3 = require('d3');
-var topojson = window.topojson = require('topojson');
-var Datamap = window.Datamap = require('./datamaps.world');
+var Datamap = require('datamaps/src/js/datamaps');
 var queue = require('queue-async');
 var _ = require("underscore");
 var colorbrewer = require("colorbrewer");
@@ -163,7 +162,7 @@ function generateLogLegend(segments) {
 function updateMap(mapId) {
     uncenter();
     var mapDef = charts[mapId];
-    var scale, segments, legendData, tooltipFn, infoFn;
+    var scale, segments, legendData, infoFn;
 
     d3.selectAll(".map-list a").classed({"active": false});
 
