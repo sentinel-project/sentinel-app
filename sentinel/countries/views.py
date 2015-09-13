@@ -1,22 +1,22 @@
-from countries.models import Country, Chart
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
 import csv
 import json
+from io import TextIOWrapper
+
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django import forms
 from django.contrib import messages
-from io import TextIOWrapper
 
+from countries.models import Country, Chart
 
 csv_fields = ('code', 'name', 'mdr_estimated_cases', 'mdr_eval_0',
-              'mdr_eval_5', 'mdr_treat_0', 'mdr_treat_5',  'mdr_therapy_0',
+              'mdr_eval_5', 'mdr_treat_0', 'mdr_treat_5', 'mdr_therapy_0',
               'mdr_therapy_5', 'reported_mdr', 'documented_adult_mdr',
               'documented_child_mdr', 'reported_xdr', 'documented_adult_xdr',
               'documented_child_xdr',)
 
 integer_fields = ('mdr_estimated_cases', 'mdr_eval_0', 'mdr_eval_5',
-                  'mdr_treat_0', 'mdr_treat_5',  'mdr_therapy_0',
+                  'mdr_treat_0', 'mdr_treat_5', 'mdr_therapy_0',
                   'mdr_therapy_5')
 
 boolean_fields = ('reported_mdr', 'documented_adult_mdr',
@@ -39,6 +39,15 @@ def index(request):
     return render(request, "index.html", {"charts_json": charts_json})
 
 
+def example(request):
+    return render(request, "example.html")
+
+
+def embed_js(request):
+    return render(request, "embed_js.tpl",
+                  content_type="application/javascript")
+
+
 def countries_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="countries.csv"'
@@ -52,6 +61,7 @@ def countries_csv(request):
                 return int(val)
             else:
                 return val
+
         row = {field: convert(getattr(country, field)) for field in csv_fields}
         writer.writerow(row)
 
@@ -101,3 +111,7 @@ def bulk_upload(request):
         form = UploadFileForm()
 
     return render(request, "bulk_admin.html", {"form": form})
+
+
+def admin_embed(request):
+    return render(request, "admin_embed.html")

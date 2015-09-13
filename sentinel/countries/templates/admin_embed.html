@@ -1,0 +1,12 @@
+{% extends "adminplus/base.html" %}
+
+{% block content %}
+    <h1>Embed code</h1>
+
+    <p>To embed the Sentinel map set on your own page, copy and paste the following code into your HTML:</p>
+
+    <pre><code>
+        &lt;script src="{{ request.scheme }}://{{ request.get_host }}{% url "embed_js" %}"&gt;&lt;/script&gt;
+    </code></pre>
+
+{% endblock %}

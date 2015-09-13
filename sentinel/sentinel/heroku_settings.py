@@ -37,3 +37,5 @@ LOGGING = {
         }
     }
 }
+
+SITE_URL = "https://sentinel.zypge.com/"
