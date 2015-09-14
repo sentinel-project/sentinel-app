@@ -20,6 +20,8 @@ queue()
     .defer(d3.json, "/static/world-50m.json")
     .defer(d3.csv, "/countries.csv", cleanCSV)
     .await(function (error, json, countries) {
+        updateProgressBar(75);
+        d3.selectAll("#map-section .hidden").classed("hidden", false);
         setupMap(json);
 
         var data = {};
@@ -27,10 +29,38 @@ queue()
             data[d.id] = d.data;
         });
         dataMap = d3.map(data);
+        updateProgressBar(90);
         init();
+        hideProgressBar();
     });
 
+function updateProgressBar(update) {
+    var pbar = d3.select(".progress-bar");
+    var valuenow = parseInt(pbar.attr("data-percent"));
+    var value;
+    if (!isNaN(update)) {
+        value = update;
+    } else if (update.add) {
+        value = valuenow + update.add;
+    } else {
+        value = valuenow;
+    }
+    pbar.attr("data-percent", value)
+        .transition().duration(300)
+        .style("width", value + "%");
+}
+
+function hideProgressBar() {
+    d3.select("#loading").classed("hidden", true);
+}
+
+var csvDown = false;
+
 function cleanCSV(data) {
+    if (!csvDown) {
+        updateProgressBar(80);
+        csvDown = true;
+    }
     var numFields = [
         "mdr_estimated_cases",
         "mdr_eval_0",

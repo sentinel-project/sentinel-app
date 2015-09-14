@@ -88,10 +88,19 @@
             </div>
             <div class="well hidden" id="country-info"></div>
         </div>
-        <div class="col-lg-8 col-sm-7">
+        <div id="loading" class="col-lg-6 col-lg-offset-1 col-sm-5 col-sm-offset-1"
+                style="padding-top: 40px;">
+            <div class="progress">
+                <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" data-percent="50"
+                     style="width: 50%">
+                    <span class="sr-only">50% Complete</span>
+                </div>
+            </div>
+        </div>
+        <div id="map-section" class="col-lg-8 col-sm-7">
             <h3 id="map-title"></h3>
 
-            <div class="row clearfix">
+            <div class="row hidden">
                 <div id="country-dropdown" class="col-sm-12">
                     <select name="country" id="country-select">
                     </select>
