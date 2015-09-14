@@ -111,7 +111,6 @@ function setupMap(json) {
     var $worldMapDiv = $("#world-map");
     svg.attr('viewBox', '0 0 ' + $worldMapDiv.width() + " " + $worldMapDiv.height());
     d3.select(window).on('resize', resize);
-    svg.selectAll("path").style("stroke-width", "inherit");
 }
 
 function fillsForScheme(colorscheme) {
@@ -288,10 +287,10 @@ function center(path) {
     }
 
     g.transition().duration(750)
-        .attr("transform", "scale(" + scale + ") " + "translate(" + dx + "," + dy + ")")
+        .attr("transform", "scale(" + scale + ") " + "translate(" + dx + "," + dy + ")");
+    svg.selectAll("path")
+        .classed("centered", false)
         .style("stroke-width", 1 / scale);
-
-    svg.selectAll("path").classed("centered", false);
 
     var previousAttributes = {
         'fill': path.style('fill'),
@@ -317,7 +316,12 @@ var infoTemplate = function (data) {
 
 function uncenter() {
     var g = svg.select("g");
-    g.transition().duration(750).attr("transform", "").style("stroke-width", 1);
+    g.transition()
+        .duration(750)
+        .attr("transform", "");
+    svg.selectAll("path")
+        .style("stroke-width", 1);
+
     if (centered) {
         resetStyle(centered);
     }

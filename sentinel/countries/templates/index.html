@@ -1,8 +1,9 @@
-{% load staticfiles %}
 <!DOCTYPE html>
+{% load staticfiles %}
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <title>Project Sentinel</title>
 
     <!-- Latest compiled and minified CSS -->
@@ -14,10 +15,11 @@
     <link href='//fonts.googleapis.com/css?family=Open+Sans:400,400italic,700italic,700'
           rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{% static "css/colorbrewer.css" %}"
-          media="screen"
-          charset="utf-8">
-    <link rel="stylesheet" href="{% static "css/style.css" %}?1" media="screen"
-          charset="utf-8">
+          media="screen">
+    <link rel="stylesheet" href="{% static "css/style.css" %}?1" media="screen">
+    <!--[if lte IE 9]>
+        <script src="{% static "aight.min.js" %}"></script>
+    <![endif]-->
 </head>
 <body>
 <div class="container-fluid">
@@ -89,7 +91,7 @@
         <div class="col-lg-8 col-sm-7">
             <h3 id="map-title"></h3>
 
-            <div id="row" class="clearfix">
+            <div class="row clearfix">
                 <div id="country-dropdown" class="col-sm-12">
                     <select name="country" id="country-select">
                     </select>
@@ -97,7 +99,7 @@
 
                 <div id="legend" class="legend col-sm-12"></div>
             </div>
-            <div id="row">
+            <div class="row">
                 <div class="col-sm-12">
                     <div id="world-map" class="map">
 
