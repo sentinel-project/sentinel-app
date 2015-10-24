@@ -18,3 +18,7 @@ admin.site.register_view(
 
 admin.site.register(Country)
 admin.site.register(Chart)
+
+from django.contrib.auth.models import Group
+
+admin.site.unregister(Group)
