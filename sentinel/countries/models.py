@@ -25,11 +25,9 @@ def log_to_option(max_power):
 class Chart(models.Model):
     ORDINAL = 'ordinal'
     LOG = 'log'
-    CONTINUOUS = 'continuous'
     SCALES = (
         (ORDINAL, 'Ordinal'),
         (LOG, 'Logarithmic'),
-        (CONTINUOUS, 'Continuous')
     )
 
     SEGMENTS = [(n, log_to_option(n)) for n in range(3, 10)]
