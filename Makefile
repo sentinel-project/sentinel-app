@@ -1,8 +1,8 @@
 # Makefile
-sentinel/static/: clean
-	npm run build:prod
+sentinel/static/bundle.js: clean
+	webpack --config webpack.prod.config.js
 
 clean:
-	rm -rf dist
+	rm -rf sentinel/static/bundle.js
 
 .PHONY: clean
