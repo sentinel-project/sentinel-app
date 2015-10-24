@@ -1,16 +1,26 @@
+import re
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
-
-import re
 
 
 def validate_chart_name(value):
     if re.fullmatch(r'[a-z0-9_]+', value) is None:
         raise ValidationError('%s is not a valid chart name' % value)
 
+
 def duple(x):
     return (x, x,)
+
+
+def log_to_option(max_power):
+    labels = []
+    for i in range(max_power - 1):
+        labels.append("{:,}-{:,}".format(10 ** i, 10 ** (i + 1) - 1))
+    labels.append("{:,}+".format(10 ** (max_power - 1)))
+    return "; ".join(labels)
+
 
 class Chart(models.Model):
     ORDINAL = 'ordinal'
@@ -22,7 +32,7 @@ class Chart(models.Model):
         (CONTINUOUS, 'Continuous')
     )
 
-    SEGMENTS = [(n, str(n)) for n in range(3, 13)]
+    SEGMENTS = [(n, log_to_option(n)) for n in range(3, 10)]
 
     COLORSCHEMES = (
         duple('Blues'),
