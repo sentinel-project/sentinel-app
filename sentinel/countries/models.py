@@ -73,29 +73,62 @@ class Country(models.Model):
 
     code = models.CharField("Country code 3-char", max_length=3, unique=True)
     name = models.CharField("Country name", max_length=255, unique=True)
+
     mdr_estimated_cases = models.PositiveIntegerField("Estimated MDR-TB cases")
+    mdr_estimated_cases_text = models.TextField("Text for Estimated MDR-TB cases", null=True, blank=True)
+
     mdr_eval_0 = models.PositiveIntegerField(
         "0-4 year-olds needing evaluation")
+    mdr_eval_0_text = models.TextField(
+        "Text for 0-4 year-olds needing evaluation", null=True, blank=True)
+
     mdr_eval_5 = models.PositiveIntegerField(
         "5-14 year-olds needing evaluation")
+    mdr_eval_5_text = models.TextField(
+        "Text for 5-14 year-olds needing evaluation", null=True, blank=True)
+
     mdr_treat_0 = models.PositiveIntegerField(
         "0-4 year-olds needing treatment")
+    mdr_treat_0_text = models.TextField(
+        "Text for 0-4 year-olds needing treatment", null=True, blank=True)
+
     mdr_treat_5 = models.PositiveIntegerField(
         "5-14 year-olds needing treatment")
+    mdr_treat_5_text = models.TextField(
+        "Text for 5-14 year-olds needing treatment", null=True, blank=True)
+
     mdr_therapy_0 = models.PositiveIntegerField(
         "0-4 year-olds needing preventative therapy")
+    mdr_therapy_0_text = models.TextField(
+        "Text for 0-4 year-olds needing preventative therapy", null=True, blank=True)
+
     mdr_therapy_5 = models.PositiveIntegerField(
         "5-14 year-olds needing preventative therapy")
+    mdr_therapy_5_text = models.TextField(
+        "Text for 5-14 year-olds needing preventative therapy", null=True, blank=True)
+
     reported_mdr = models.BooleanField("Reported MDR-TB case")
     reported_xdr = models.BooleanField("Reported XDR-TB case")
+    reported_text = models.TextField("Text for reported TB cases", null=True, blank=True)
+
     documented_adult_mdr = models.BooleanField(
         "Publication documenting adult MDR TB case")
     documented_child_mdr = models.BooleanField(
         "Publication documenting child MDR TB case")
+    documented_mdr_text = models.TextField(
+        "Text for MDR-TB publication status", null=True, blank=True)
+
     documented_adult_xdr = models.BooleanField(
         "Publication documenting adult XDR TB case")
     documented_child_xdr = models.BooleanField(
         "Publication documenting child XDR TB case")
+    documented_xdr_text = models.TextField(
+        "Text for XDR-TB publication status", null=True, blank=True)
+
+    all_mdr_text = models.TextField(
+        "Text for all MDR-TB data", null=True, blank=True)
+    all_xdr_text = models.TextField(
+        "Text for all MDR-TB data", null=True, blank=True)
 
     def __str__(self):
         return self.name

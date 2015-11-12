@@ -80,11 +80,19 @@ function cleanCSV(data) {
     d["name"] = data["name"];
     _.each(numFields, function (field) {
         d[field] = +data[field];
+
+        var textField = field + "_text";
+        if (data[textField]) {
+            d[textField] = data[textField];
+        }
     });
 
     d["reported"] = d["reported_mdr"] + 2 * d["reported_xdr"];
+    d["reported_text"] = data["reported_text"];
     d["pub_mdr"] = d["documented_adult_mdr"] + 2 * d["documented_child_mdr"];
+    d["pub_mdr_text"] = data["documented_mdr_text"];
     d["pub_xdr"] = d["documented_adult_mdr"] + 2 * d["documented_child_xdr"];
+    d["pub_xdr_text"] = data["documented_xdr_text"];
 
     if (d["documented_child_mdr"] === 1) {
         d["all_mdr"] = 3;
@@ -93,6 +101,7 @@ function cleanCSV(data) {
     } else {
         d["all_mdr"] = d["reported_mdr"];
     }
+    d["all_mdr_text"] = data["all_mdr_text"];
 
     if (d["documented_child_xdr"] === 1) {
         d["all_xdr"] = 3;
@@ -101,6 +110,7 @@ function cleanCSV(data) {
     } else {
         d["all_xdr"] = d["reported_xdr"];
     }
+    d["all_xdr_text"] = data["all_xdr_text"];
 
     return {id: data["code"], data: d};
 }
@@ -217,7 +227,7 @@ function updateMap(mapId) {
             return {
                 "fillKey": fillKey(data[mapId]),
                 "countryName": data.name,
-                "description": d3.format(",d")(data[mapId])
+                "description": data[mapId + "_text"] || d3.format(",d")(data[mapId])
             };
         }
     } else {
@@ -230,7 +240,7 @@ function updateMap(mapId) {
             return {
                 "fillKey": fillKey(data[mapId]),
                 "countryName": data.name,
-                "description": mapDef.ordinals[data[mapId]]
+                "description": data[mapId + "_text"] || mapDef.ordinals[data[mapId]]
             }
         }
     }
