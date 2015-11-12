@@ -256,6 +256,8 @@
 	    var mapDef = charts[mapId];
 	    var scale, segments, legendData, infoFn;
 
+	    $("#default-info").html(mapDef.defaultText);
+
 	    d3.selectAll(".map-list a").classed({"active": false});
 
 	    // This is easier to do with jQuery.
@@ -392,6 +394,8 @@
 	        d3.select("#country-info")
 	            .html(infoTemplate(JSON.parse(path.attr("data-info"))))
 	            .classed("hidden", false);
+	        d3.select("#default-info")
+	            .classed("hidden", true);
 	    }
 	}
 
@@ -413,6 +417,7 @@
 	    }
 
 	    d3.select("#country-info").html("").classed("hidden", true);
+	    d3.select("#default-info").classed("hidden", false);
 	    d3.select("#country-select").node().value = "---";
 	    centered = null;
 	}

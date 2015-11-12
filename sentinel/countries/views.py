@@ -51,12 +51,17 @@ def index(request):
     charts = Chart.objects.all()
     charts_dict = {}
     for chart in charts:
+        if chart.default_text:
+            default_text = chart.default_text.strip().replace("\n", "<br />")
+        else:
+            default_text = "This chart needs default text."
         charts_dict[chart.name] = {
             "title": chart.title,
             "scale": chart.scale,
             "ordinals": chart.ordinals,
             "segments": chart.segments,
             "colorscheme": chart.colorscheme,
+            "defaultText": default_text,
         }
     charts_json = json.dumps(charts_dict)
     return render(request, "index.html", {"charts_json": charts_json})
