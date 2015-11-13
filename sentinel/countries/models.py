@@ -64,6 +64,7 @@ class Chart(OrderedModel):
                             validators=[validate_chart_name],
                             editable=False)
     title = models.CharField(max_length=255)
+    menu_title = models.CharField(max_length=255, blank=True, null=True)
     chart_group = models.ForeignKey(ChartGroup, blank=True, null=True)
     scale = models.CharField(max_length=20, choices=SCALES)
     ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True)

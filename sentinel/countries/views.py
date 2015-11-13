@@ -7,7 +7,7 @@ from django.contrib import messages
 
 import csv
 import json
-from countries.models import Country, Chart
+from countries.models import Country, Chart, ChartGroup
 
 csv_fields = ('code',
               'name',
@@ -64,7 +64,7 @@ def index(request):
             "defaultText": default_text,
         }
     charts_json = json.dumps(charts_dict)
-    return render(request, "index.html", {"charts_json": charts_json})
+    return render(request, "index.html", {"chart_groups": ChartGroup.objects.all(), "charts_json": charts_json})
 
 
 def example(request):
