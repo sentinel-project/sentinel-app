@@ -1,6 +1,7 @@
 from django.contrib import admin
+from ordered_model.admin import OrderedModelAdmin
 
-from .models import Country, Chart
+from .models import Country, Chart, ChartGroup
 from .views import bulk_upload, admin_embed
 
 admin.site.register_view(
@@ -51,9 +52,16 @@ class CountryAdmin(admin.ModelAdmin):
         ]})
     ]
 
+class ChartGroupAdmin(OrderedModelAdmin):
+    list_display = ('title', 'move_up_down_links')
+    prepopulated_fields = {"slug": ("title",)}
 
+class ChartAdmin(OrderedModelAdmin):
+    list_display = ('chart_group', 'title', 'move_up_down_links')
+
+admin.site.register(ChartGroup, ChartGroupAdmin)
+admin.site.register(Chart, ChartAdmin)
 admin.site.register(Country, CountryAdmin)
-admin.site.register(Chart)
 
 from django.contrib.auth.models import Group
 

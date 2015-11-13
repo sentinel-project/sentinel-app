@@ -3,6 +3,7 @@ import re
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
+from ordered_model.models import OrderedModel
 
 
 def validate_chart_name(value):
@@ -21,8 +22,14 @@ def log_to_option(max_power):
     labels.append("{:,}+".format(10 ** (max_power - 1)))
     return "; ".join(labels)
 
+class ChartGroup(OrderedModel):
+    title = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True)
 
-class Chart(models.Model):
+    def __str__(self):
+        return self.title
+
+class Chart(OrderedModel):
     ORDINAL = 'ordinal'
     LOG = 'log'
     SCALES = (
@@ -57,11 +64,14 @@ class Chart(models.Model):
                             validators=[validate_chart_name],
                             editable=False)
     title = models.CharField(max_length=255)
+    chart_group = models.ForeignKey(ChartGroup, blank=True, null=True)
     scale = models.CharField(max_length=20, choices=SCALES)
     ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True)
     segments = models.PositiveIntegerField(null=True, blank=True, choices=SEGMENTS)
     colorscheme = models.CharField(max_length=20, choices=COLORSCHEMES, default='Blues')
     default_text = models.TextField("Text to show when no country is selected", blank=True, null=True)
+
+    order_with_respect_to = 'chart_group'
 
     def __str__(self):
         return self.title
