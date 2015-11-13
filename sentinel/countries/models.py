@@ -74,6 +74,9 @@ class Chart(OrderedModel):
 
     order_with_respect_to = 'chart_group'
 
+    class Meta(OrderedModel.Meta):
+        ordering = ['chart_group', 'order']
+
     def __str__(self):
         return self.title
 
