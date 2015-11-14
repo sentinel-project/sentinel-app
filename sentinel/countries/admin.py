@@ -23,16 +23,19 @@ class CountryAdmin(admin.ModelAdmin):
         (None, {'fields': ['code', 'name']}),
         ('Map the Gap', {'fields': [
             'reported_mdr',
+            'reported_mdr_text',
             'reported_xdr',
-            'reported_text',
+            'reported_xdr_text',
             'documented_adult_mdr',
+            'documented_adult_mdr_text',
             'documented_child_mdr',
-            'documented_mdr_text',
+            'documented_child_mdr_text',
             'documented_adult_xdr',
+            'documented_adult_xdr_text',
             'documented_child_xdr',
-            'documented_xdr_text',
-            'all_mdr_text',
-            'all_xdr_text',
+            'documented_child_xdr_text',
+            'pub_mdr_text',
+            'pub_xdr_text',
         ]}),
         ('Targets', {'fields': [
             'mdr_estimated_cases',
@@ -57,7 +60,7 @@ class ChartGroupAdmin(OrderedModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
 class ChartAdmin(OrderedModelAdmin):
-    list_display = ('chart_group', 'title', 'move_up_down_links')
+    list_display = ('title', 'chart_group', 'move_up_down_links')
 
 admin.site.register(ChartGroup, ChartGroupAdmin)
 admin.site.register(Chart, ChartAdmin)

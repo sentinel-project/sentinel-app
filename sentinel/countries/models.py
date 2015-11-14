@@ -22,12 +22,14 @@ def log_to_option(max_power):
     labels.append("{:,}+".format(10 ** (max_power - 1)))
     return "; ".join(labels)
 
+
 class ChartGroup(OrderedModel):
     title = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.title
+
 
 class Chart(OrderedModel):
     ORDINAL = 'ordinal'
@@ -40,29 +42,38 @@ class Chart(OrderedModel):
     SEGMENTS = [(n, log_to_option(n)) for n in range(3, 10)]
 
     COLORSCHEMES = (
-        duple('Blues'),
-        duple('Greens'),
-        duple('Grays'),
-        duple('Oranges'),
-        duple('Purples'),
-        duple('Reds'),
-        ('BuGn', "Blue to Green"),
-        ('BuPu', "Blue to Purple"),
-        ('GnBu', "Green to Blue"),
-        ('OrRd', "Orange to Red"),
-        ('PuBu', "Purple to Blue"),
-        ('PuRd', "Purple to Red"),
-        ('PuBuGn', "Purple/Blue/Green"),
-        ('RdPu', "Red to Purple"),
-        ('YlGn', "Yellow to Green"),
-        ('YlGnBu', "Yellow/Green/Blue"),
-        ('YlOrBr', "Yellow/Orange/Brown"),
-        ('YlOrRd', "Yellow/Orange/Red"),
+        ('Sequential', (
+            duple('Blues'),
+            duple('Greens'),
+            duple('Grays'),
+            duple('Oranges'),
+            duple('Purples'),
+            duple('Reds'),
+        )),
+        ('Diverging', (
+            ('BrBG', 'Brown to Blue'),
+            ('PiYG', 'Pink to Green'),
+            ('PRGn', 'Purple to Green'),
+            ('PuOr', 'Purple to Orange'),
+            ('RdBu', 'Red to Blue'),
+            ('RdGy', 'Red to Gray'),
+            duple('Spectral'),
+        )),
+        ('Qualitative', (
+            duple('Accent'),
+            duple('Dark2'),
+            duple('Paired'),
+            duple('Pastel1'),
+            duple('Pastel2'),
+            duple('Set1'),
+            duple('Set2'),
+            duple('Set3'),
+        ))
     )
 
     name = models.CharField(unique=True, max_length=25,
                             validators=[validate_chart_name],
-                            editable=False)
+                            )
     title = models.CharField(max_length=255)
     menu_title = models.CharField(max_length=255, blank=True, null=True)
     chart_group = models.ForeignKey(ChartGroup, blank=True, null=True)
@@ -123,27 +134,32 @@ class Country(models.Model):
         "Text for 5-14 year-olds needing preventative therapy", null=True, blank=True)
 
     reported_mdr = models.BooleanField("Reported MDR-TB case")
+    reported_mdr_text = models.TextField("Text for reported MDR-TB case", null=True, blank=True)
+
     reported_xdr = models.BooleanField("Reported XDR-TB case")
-    reported_text = models.TextField("Text for reported TB cases", null=True, blank=True)
+    reported_xdr_text = models.TextField("Text for Reported XDR-TB case", null=True, blank=True)
 
     documented_adult_mdr = models.BooleanField(
         "Publication documenting adult MDR TB case")
+    documented_adult_mdr_text = models.TextField(
+        "Text for Publication documenting adult MDR TB case", null=True, blank=True)
     documented_child_mdr = models.BooleanField(
         "Publication documenting child MDR TB case")
-    documented_mdr_text = models.TextField(
-        "Text for MDR-TB publication status", null=True, blank=True)
-
+    documented_child_mdr_text = models.TextField(
+        "Text for Publication documenting child MDR TB case", null=True, blank=True)
     documented_adult_xdr = models.BooleanField(
         "Publication documenting adult XDR TB case")
+    documented_adult_xdr_text = models.TextField(
+        "Text for Publication documenting adult XDR TB case", null=True, blank=True)
     documented_child_xdr = models.BooleanField(
         "Publication documenting child XDR TB case")
-    documented_xdr_text = models.TextField(
-        "Text for XDR-TB publication status", null=True, blank=True)
+    documented_child_xdr_text = models.TextField(
+        "Text for Publication documenting child XDR TB case", null=True, blank=True)
 
-    all_mdr_text = models.TextField(
-        "Text for all MDR-TB data", null=True, blank=True)
-    all_xdr_text = models.TextField(
-        "Text for all MDR-TB data", null=True, blank=True)
+    pub_mdr_text = models.TextField(
+        "Text for MDR-TB publication category", null=True, blank=True)
+    pub_xdr_text = models.TextField(
+        "Text for XDR-TB publication category", null=True, blank=True)
 
     def __str__(self):
         return self.name
