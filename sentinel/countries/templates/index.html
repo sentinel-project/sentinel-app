@@ -95,6 +95,7 @@
 <!-- Latest compiled and minified JavaScript -->
 <script>
     window.charts = {{ charts_json|safe }};
+    window.defaultChart = '{{ chart_groups.first.chart_set.first.name }}';
 </script>
 <script src="{% static "iframeResizer.contentWindow.min.js" %}"></script>
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>

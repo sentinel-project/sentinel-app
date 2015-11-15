@@ -375,7 +375,7 @@ function init() {
 
     // Default route
     r.add('', function () {
-        updateMap("reported");
+        updateMap(window.defaultChart);
     });
 
     r.add('map/:name', function (r) {
