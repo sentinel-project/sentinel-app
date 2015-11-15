@@ -52,7 +52,15 @@ class CountryAdmin(admin.ModelAdmin):
             'mdr_therapy_0_text',
             'mdr_therapy_5',
             'mdr_therapy_5_text',
-        ]})
+        ]}),
+        ('Targets 2', {'fields': [
+            't2m1',
+            't2m1_text',
+            't2m2',
+            't2m2_text',
+            't2m3',
+            't2m3_text',
+        ]}),
     ]
 
 class ChartGroupAdmin(OrderedModelAdmin):

@@ -1,12 +1,12 @@
 from io import TextIOWrapper
+import csv
+import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django import forms
 from django.contrib import messages
 
-import csv
-import json
 from countries.models import Country, Chart, ChartGroup
 
 csv_fields = ('code',
@@ -39,11 +39,17 @@ csv_fields = ('code',
               'documented_child_xdr_text',
               'pub_mdr_text',
               'pub_xdr_text',
+              't2m1',
+              't2m1_text',
+              't2m2',
+              't2m2_text',
+              't2m3',
+              't2m3_text',
               )
 
 integer_fields = ('mdr_estimated_cases', 'mdr_eval_0', 'mdr_eval_5',
                   'mdr_treat_0', 'mdr_treat_5', 'mdr_therapy_0',
-                  'mdr_therapy_5')
+                  'mdr_therapy_5', 't2m1', 't2m2', 't2m3')
 
 boolean_fields = ('reported_mdr', 'documented_adult_mdr',
                   'documented_child_mdr', 'reported_xdr',

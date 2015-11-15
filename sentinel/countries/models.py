@@ -73,14 +73,22 @@ class Chart(OrderedModel):
 
     name = models.CharField(unique=True, max_length=25,
                             validators=[validate_chart_name],
+                            help_text="<strong>Do not edit this unless you are sure of what you are doing.</strong>"
                             )
-    title = models.CharField(max_length=255)
-    menu_title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField("Title on top of page", max_length=255)
+    menu_title = models.CharField(
+        "Title in menu",
+        max_length=255, blank=True, null=True,
+        help_text="You can leave this blank if you want the same title as on top of page.")
     chart_group = models.ForeignKey(ChartGroup, blank=True, null=True)
     scale = models.CharField(max_length=20, choices=SCALES)
-    ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True)
-    segments = models.PositiveIntegerField(null=True, blank=True, choices=SEGMENTS)
-    colorscheme = models.CharField(max_length=20, choices=COLORSCHEMES, default='Blues')
+    ordinals = ArrayField(models.CharField(max_length=100), null=True, blank=True,
+                          help_text="List the options separated by commas with no spaces.")
+    segments = models.PositiveIntegerField(null=True, blank=True, choices=SEGMENTS,
+                                           help_text="Only select this for logarithmic charts.")
+    colorscheme = models.CharField(max_length=20, choices=COLORSCHEMES, default='Blues',
+                                   help_text="See <a href='http://colorbrewer2.org/' target='_blank'>Colorbrewer</a>"
+                                             " to see the color schemes.")
     default_text = models.TextField("Text to show when no country is selected", blank=True, null=True)
 
     order_with_respect_to = 'chart_group'
@@ -160,6 +168,16 @@ class Country(models.Model):
         "Text for MDR-TB publication category", null=True, blank=True)
     pub_xdr_text = models.TextField(
         "Text for XDR-TB publication category", null=True, blank=True)
+
+    t2m1 = models.PositiveIntegerField("Targets 2 Map 1 data")
+    t2m1_text = models.TextField(
+        "Text for Targets 2 Map 1 data", null=True, blank=True)
+    t2m2 = models.PositiveIntegerField("Targets 2 Map 2 data")
+    t2m2_text = models.TextField(
+        "Text for Targets 2 Map 2 data", null=True, blank=True)
+    t2m3 = models.PositiveIntegerField("Targets 2 Map 3 data")
+    t2m3_text = models.TextField(
+        "Text for Targets 2 Map 3 data", null=True, blank=True)
 
     def __str__(self):
         return self.name
