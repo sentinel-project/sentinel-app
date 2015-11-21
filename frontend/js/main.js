@@ -338,7 +338,7 @@ function center(path) {
     };
 
     path.attr('data-previousAttributes', JSON.stringify(previousAttributes))
-        .style("fill", "#5fad9f")
+        .style("fill", "#7F7F7F")
         .classed("centered", true);
 
     if (path.attr("data-info")) {
