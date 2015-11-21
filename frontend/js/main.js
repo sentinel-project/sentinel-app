@@ -89,7 +89,10 @@ function cleanCSV(data) {
         "documented_adult_mdr",
         "documented_child_mdr",
         "documented_adult_xdr",
-        "documented_child_xdr"];
+        "documented_child_xdr",
+        "t2m1",
+        "t2m2",
+        "t2m3"];
     var d = {};
 
     d["name"] = data["name"];
@@ -273,7 +276,7 @@ function updateMap(mapId) {
 
     var fillKey = function (i) {
         var max = segments;
-        var fill = (i == 0) ? 0 : Math.min(Math.floor(scale(i)), max);
+        var fill = i ? Math.min(Math.floor(scale(i)), max) : 0;
 
         if (mapDef.scale == "log") {
             max += 1;
