@@ -18,6 +18,16 @@ colorbrewer["Sentinel"] = {
     4: ["#B19DCA", "#5fad9f", "#FFF46C", "#584F92"]
 };
 
+function getColorScheme(name) {
+    var scheme = colorbrewer[name];
+
+    if (scheme === undefined) {
+        scheme = colorbrewer['Blues'];
+    }
+
+    return scheme;
+}
+
 // =======================
 // Load data from CSVs
 // =======================
@@ -153,7 +163,7 @@ function setupMap(json) {
 
 function fillsForScheme(colorscheme) {
     var fills = {defaultFill: "#CCC"};
-    _(colorbrewer[colorscheme]).each(function (colors, count) {
+    _(getColorScheme(colorscheme)).each(function (colors, count) {
         _(colors).each(function (color, idx) {
             fills["q" + idx + "-" + count] = color;
         })
@@ -221,7 +231,7 @@ function updateMap(mapId) {
     if (mapDef.scale === "log") {
         scale = d3.scale.log();
         segments = mapDef.segments;
-        var colors = colorbrewer[mapDef.colorscheme][segments + 1].slice(1);
+        var colors = getColorScheme(mapDef.colorscheme)[segments + 1].slice(1);
         legendData = _(colors).zip(generateLogLegend(segments));
         infoFn = function (data) {
             return {
@@ -234,7 +244,7 @@ function updateMap(mapId) {
         segments = Math.max(mapDef.ordinals.length, 3);
         scale = d3.scale.linear();
 
-        var colors = colorbrewer[mapDef.colorscheme][segments];
+        var colors = getColorScheme(mapDef.colorscheme)[segments];
         legendData = _(colors).zip(mapDef.ordinals);
         infoFn = function (data) {
             return {
