@@ -13,6 +13,11 @@ var margin = {top: 10, left: 10, bottom: 10, right: 10}
 
 var worldMap, dataMap, centered, svg;
 
+colorbrewer["Sentinel"] = {
+    3: ["#B19DCA", "#5fad9f", "#FFF46C"],
+    4: ["#B19DCA", "#5fad9f", "#FFF46C", "#584F92"]
+};
+
 // =======================
 // Load data from CSVs
 // =======================
@@ -190,8 +195,8 @@ function setProjection(element, options) {
 }
 
 function generateLogLegend(segments) {
-    var labels = [];
-    for (var i = 0; i < segments - 1; i++) {
+    var labels = ["0-9"];
+    for (var i = 1; i < segments - 1; i++) {
         labels[i] = Math.pow(10, i).toLocaleString() + "-" + (Math.pow(10, i + 1) - 1).toLocaleString();
     }
     labels[i] = Math.pow(10, i).toLocaleString() + "+";
@@ -258,10 +263,14 @@ function updateMap(mapId) {
 
     var fillKey = function (i) {
         var max = segments;
-        if (i === 0) {
-            return "q0-" + max;
+        var fill = (i == 0) ? 0 : Math.min(Math.floor(scale(i)), max);
+
+        if (mapDef.scale == "log") {
+            max += 1;
+            fill += 1;
         }
-        return "q" + Math.min(max, Math.floor(scale(i))) + "-" + max;
+
+        return "q" + fill + "-" + max;
     };
 
     var newData = {};
