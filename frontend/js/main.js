@@ -295,6 +295,10 @@ function resetStyle(element) {
 
 
 function center(path) {
+    if (centered) {
+        resetStyle(centered);
+    }
+
     centered = path.node();
 
     var g = svg.select("g"),
