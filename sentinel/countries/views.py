@@ -1,6 +1,8 @@
 from io import TextIOWrapper
 import csv
 import json
+import chardet
+
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -117,7 +119,13 @@ def import_csv(request, csvfile):
             return (value == "1")
         return value
 
-    csvtext = TextIOWrapper(csvfile.file, encoding='UTF-8')
+    # Detect encoding before parsing file
+    rawdata = csvfile.file.read()
+    encoding = chardet.detect(rawdata)
+    csvfile.file.seek(0)
+
+    # Parse file
+    csvtext = TextIOWrapper(csvfile.file, encoding=encoding['encoding'])
     reader = csv.DictReader(csvtext)
     if reader.fieldnames != list(csv_fields):
         return False
